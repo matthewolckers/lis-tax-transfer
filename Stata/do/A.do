@@ -166,9 +166,8 @@ gen inc5 = marketincome + allpension + transfer - tax - hxct
  replace `var' = 0 if `var' < 0
  }
 
-* Define the income deciles
-gen inc_decile = inc2/(nhhmem^0.5)
-xtile decile = inc_decile [w=hwgt], nquantiles(10)
+ * Define the income deciles
+ xtile decile = inc2 [w=hwgt], nquantiles(10) // Note that inc2 is already corrected for household size by ppp_equiv
 
 end
 
@@ -210,8 +209,7 @@ gen inc5 = marketincome + allpension + transfer - tax - hxct
  }
 
 * Define the income deciles
-gen inc_decile = inc2/(nhhmem^0.5)
-xtile decile = inc_decile [w=hwgt], nquantiles(10)
+xtile decile = inc2 [w=hwgt], nquantiles(10) // Note that inc2 is already corrected for household size by ppp_equiv
 
 end
 
@@ -253,9 +251,8 @@ gen inc5 = marketincome + allpension + transfer - tax - hxct
  replace `var' = 0 if `var' < 0
  }
 
-* Define the income deciles
-gen inc_decile = inc2/(nhhmem^0.5)
-xtile decile = inc_decile [w=hwgt], nquantiles(10)
+ * Define the income deciles
+ xtile decile = inc2 [w=hwgt], nquantiles(10) // Note that inc2 is already corrected for household size by ppp_equiv
 
 end
 
@@ -296,7 +293,6 @@ end
    quietly gen_pvars
    quietly merge 1:1 hid using $`ccyy'h, keepusing($hvars $hvarsflow) nogenerate
    quietly ppp_equiv
-   quietly gen_hxct
    quietly income_stages
 
    foreach certain_ccyy in $fixpensions_datasets1 {
