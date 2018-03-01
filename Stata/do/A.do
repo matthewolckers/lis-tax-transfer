@@ -112,6 +112,34 @@ replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c
 
 end
 
+***************************************************************************
+* Program: Apply PPP conversions and equivalence scales to flow variables
+***************************************************************************
+
+program define ppp_equiv
+
+* Define PPP conversions to 2011 international dollars (ppp)
+merge m:1 dname using "$mydata\molcke\ppp.dta", keep(match) nogenerate
+
+* Complete the PPP conversions and equivalence scales with replace commands
+ foreach var in $hvarsflow $hvarsnew {
+ replace `var' = (`var'*ppp)/(nhhmem^0.5)
+ }
+
+* Trim and bottom code
+
+ * Step 1
+ drop if dhi<=0
+
+ * Step 2
+ replace hsscer=0 if hsscer<0 // Employer
+ replace hsscee=0 if hsscee<0 // Employee
+
+ * Step 3
+ // completed within the income_stages program
+
+end
+
 **************************************************
 * Program: Define the different stages of income
 **************************************************
@@ -253,34 +281,6 @@ gen inc5 = marketincome + allpension + transfer - tax - hxct
 
  * Define the income deciles
  xtile decile = inc2 [w=hwgt], nquantiles(10) // Note that inc2 is already corrected for household size by ppp_equiv
-
-end
-
-***************************************************************************
-* Program: Apply PPP conversions and equivalence scales to flow variables
-***************************************************************************
-
-program define ppp_equiv
-
-* Define PPP conversions to 2011 international dollars (ppp)
-merge m:1 dname using "$mydata\molcke\ppp.dta", keep(match) nogenerate
-
-* Complete the PPP conversions and equivalence scales with replace commands
- foreach var in $hvarsflow $hvarsnew {
- replace `var' = (`var'*ppp)/(nhhmem^0.5)
- }
-
-* Trim and bottom code
-
- * Step 1
- drop if dhi<=0
-
- * Step 2
- replace hsscer=0 if hsscer<0 // Employer
- replace hsscee=0 if hsscee<0 // Employee
-
- * Step 3
- // completed within the income_stages program
 
 end
 
