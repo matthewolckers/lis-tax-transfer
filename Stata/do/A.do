@@ -113,14 +113,38 @@ program define ppp_equiv
     replace hsscer=0 if hsscer<0 // Employer
     replace hsscee=0 if hsscee<0 // Employee
     * Step 3
-    // completed within the income_stages program
+    // completed within the inc_and_decile program
+end
+
+
+*******************************************************************
+* Helper Program: Define the different stages of income and deciles
+*******************************************************************
+
+program define inc_and_decile
+
+  gen inc1 = marketincome
+  gen inc2 = marketincome + allpension
+  gen inc3 = marketincome + allpension + transfer
+  gen inc4 = marketincome + allpension + transfer - tax
+  gen inc5 = marketincome + allpension + transfer - tax - hxct
+
+  * Trim and bottom code
+  // The preceding steps are in the ppp_equiv program
+  * Step 3
+  foreach var in $hvarsflow $hvarsnew {
+  replace `var' = 0 if `var' < 0
+  }
+  * Define the income deciles
+  xtile decile = inc2 [w=hwgt*nhhmem], nquantiles(10) // already corrected for household size by ppp_equiv
+
 end
 
 **************************************************
-* Program: Define the different stages of income
+* Program: Define taxes and transfer variables
 **************************************************
 
-program define income_stages
+program define def_tax_and_transfer
   * Use the imputed data if employee social security contributions is not available
   replace hxits=hsscee if hxits==.
   * For certain countries, hitsil is missing, but some of the hitsil subcategories are defined
@@ -145,20 +169,7 @@ program define income_stages
   gen hssc = hxits + hsscer
   gen marketincome = hil + (hic-hicvip) + hsscer
 
-    gen inc1 = marketincome
-    gen inc2 = marketincome + allpension
-    gen inc3 = marketincome + allpension + transfer
-    gen inc4 = marketincome + allpension + transfer - tax
-    gen inc5 = marketincome + allpension + transfer - tax - hxct
-
-  * Trim and bottom code
-  // The preceding steps are in the ppp_equiv program
-  * Step 3
-  foreach var in $hvarsflow $hvarsnew {
-    replace `var' = 0 if `var' < 0
-    }
- * Define the income deciles
- xtile decile = inc2 [w=hwgt], nquantiles(10) // already corrected for household size by ppp_equiv
+  inc_and_decile
 
 end
 
@@ -178,19 +189,9 @@ program define fix_pensions_type1
   gen transfer = hits - pubpension
   *gen tax = hxit + hsscer // No change
   *gen marketincome = hil + (hic-hicvip) + hsscer // No change
-    gen inc1 = marketincome
-    gen inc2 = marketincome + allpension
-    gen inc3 = marketincome + allpension + transfer
-    gen inc4 = marketincome + allpension + transfer - tax
-    gen inc5 = marketincome + allpension + transfer - tax - hxct
-  * Trim and bottom code
-    // The preceding steps are in the ppp_equiv program
-    * Step 3
-    foreach var in $hvarsflow $hvarsnew {
-      replace `var' = 0 if `var' < 0
-    }
-  * Define the income deciles
-    xtile decile = inc2 [w=hwgt], nquantiles(10) // Note that inc2 is already corrected for household size by ppp_equiv
+
+  inc_and_decile
+
 end
 
 ***************************************************************************
@@ -210,19 +211,9 @@ program define fix_pensions_type3
   gen transfer = hits - pubpension
   *gen tax = hxit + hsscer // No change
   *gen marketincome = hil + (hic-hicvip) + hsscer // No change
-    gen inc1 = marketincome
-    gen inc2 = marketincome + allpension
-    gen inc3 = marketincome + allpension + transfer
-    gen inc4 = marketincome + allpension + transfer - tax
-    gen inc5 = marketincome + allpension + transfer - tax - hxct
-  * Trim and bottom code
-  // The preceding steps are in the ppp_equiv program
-  * Step 3
-  foreach var in $hvarsflow $hvarsnew {
-    replace `var' = 0 if `var' < 0
-  }
-  * Define the income deciles
-  xtile decile = inc2 [w=hwgt], nquantiles(10) // Note that inc2 is already corrected for household size by ppp_equiv
+
+  inc_and_decile
+
 end
 
 **********************************************************
@@ -234,7 +225,7 @@ end
    quietly gen_pvars
    quietly merge 1:1 hid using $`ccyy'h, keepusing($hvars $hvarsflow) nogenerate
    quietly ppp_equiv
-   quietly income_stages
+   quietly def_tax_and_transfer
    foreach certain_ccyy in $fixpensions_datasets1 {
       quietly fix_pensions_type1 if "`ccyy'" == "`certain_ccyy'"
       }
@@ -242,16 +233,16 @@ end
       quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
       }
    foreach var in $hvarsinc $hvarsflow $hvarsnew {
-      quietly capture sgini `var' [aw=hwgt]
+      quietly capture sgini `var' [aw=hwgt*nhhmem]
       local `var'_gini = r(coeff)
-      quietly sum `var' [w=hwgt]
+      quietly sum `var' [w=hwgt*nhhmem]
       local `var'_mean = r(mean)
       foreach sortvar in inc1 inc2 inc3 inc4 inc5 {
-        quietly capture sgini `var' [aw=hwgt], sortvar(`sortvar')
+        quietly capture sgini `var' [aw=hwgt*nhhmem], sortvar(`sortvar')
         local `var'conc_`sortvar' = r(coeff)
         }
       forvalues num = 1/10 {
-        quietly sum `var' [w=hwgt] if decile==`num'
+        quietly sum `var' [w=hwgt*nhhmem] if decile==`num'
         local `var'_mean_`num' = r(mean)
         local `var'_min_`num' = r(min)
         local `var'_max_`num' = r(max)
