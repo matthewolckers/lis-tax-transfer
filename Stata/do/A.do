@@ -56,6 +56,49 @@ program define gen_pvars
 
 end
 
+program define FR_gen_pvars
+  merge m:1 dname using "$mydata\molcke\molcke_ssc_20160711.dta", keep(match) nogenerate
+  * Impute individual level income tax from household level income tax
+  bysort hid: egen hemp = total(emp) , missing									// missing option to set a total of all missing values to missing rather than zero.
+  drop pxiti
+  gen pxiti = hxiti/hemp
+  replace pxiti =. if emp!=1
+  **IMPORTANT**Generate Employee Social Security Contributions
+  gen psscee=.
+  replace psscee = ((pil*ee_r1)/(1-ee_r1))
+  replace psscee = (((pil-ee_c1)*ee_r2)/(1-ee_r2))  + ee_r1*ee_c1  if pil>ee_c1mix & ee_c1mix!=.
+  replace psscee = (((pil-ee_c2)*ee_r3)/(1-ee_r3))  + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c2mix & ee_c2mix!=.
+  replace psscee = (((pil-ee_c3)*ee_r4)/(1-ee_r4))  + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c3mix & ee_c3mix!=.
+  replace psscee = (((pil-ee_c4)*ee_r5)/(1-ee_r5))  + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c4mix & ee_c4mix!=.
+  replace psscee = (((pil-ee_c5)*ee_r6)/(1-ee_r6))  + ee_r5*(ee_c5 - ee_c4) + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1  if pil>ee_c5mix & ee_c5mix!=.
+  **IMPORTANT**Convert French datasets from net to gross
+  replace pil=pil+pxiti+psscee
+  * Generate Employer Social Security Contributions
+  gen psscer=.
+  replace psscer = pil*er_r1
+  replace psscer = (pil-er_c1)*er_r2 + er_r1*er_c1  if pil>er_c1 & er_c1!=.
+  replace psscer = (pil-er_c2)*er_r3 + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c2 & er_c2!=.
+  replace psscer = (pil-er_c3)*er_r4 + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c3 & er_c3!=.
+  replace psscer = (pil-er_c4)*er_r5 + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c4 & er_c4!=.
+  replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1  if pil>er_c5 & er_c5!=.
+	* Manual corrections for certain datasets (Employer Social Security Contributions)
+	*France 2000 fr00 (measured in Francs, not Euros)
+	replace psscer=psscer-(0.182*pil) if pil<=83898 & dname=="fr00"
+	replace psscer=psscer-(0.55*(111584.34-pil)) if pil>83898 & pil<=111584.34 & dname=="fr00"
+	*France 2005 fr05
+	replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" //I am not sure I have this adjustment correct.
+	*France 2010 fr10
+	replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
+  * Convert variables to household level
+	bysort hid: egen hsscee=total(psscee)
+	bysort hid: egen hsscer=total(psscer)
+  * Keep only household level SSC and household id
+	keep hid hsscee hsscer
+	drop if hid==.
+	duplicates drop hid, force
+
+end
+
 ***************************************************************************
 * Helper Program: Manual corrections
 ***************************************************************************
@@ -228,6 +271,54 @@ program define fix_pensions_type3
 
 end
 
+***************************************************************************
+* Program: Adjustments to tax for France
+***************************************************************************
+
+program define FR_def_tax_and_transfer
+  drop tax inc1 inc2 inc3 inc4 inc5 inc_decile decile
+  * Impute the taxes CSG and CRDS
+  FR_tax_CSG_CRDS
+  * Define the components of the income stages
+  gen tax = hxiti + hxits + hsscer + hic_csg_crds + pension_csg_crds
+  * For France, incomes are reported net of ssc, but gross of income tax
+  gen marketincome = hil + (hic-hicvip) + hsscer + hic_csg_crds + hxits + pension_csg_crds
+
+  inc_and_decile
+
+end
+
+program define FR_tax_CSG_CRDS
+  * Labour income
+  // CSG and CRDS on labour income is imputed within Employee SSC
+  * Capital income
+  gen hic_csg_crds = hic * 0.087 if dname =="fr00"
+  replace hic_csg_crds = hic * 0.087 if dname =="fr05"
+  replace hic_csg_crds = hic * 0.08  if dname =="fr10"
+  * Pensions
+    *Family share
+    gen N = (nhhmem - nhhmem17)
+    replace N = 2 + ((nhhmem - nhhmem17)-2) / 2 if (nhhmem - nhhmem17)>2
+    gen C = nhhmem17 / 2
+    replace C = 1 + (nhhmem17 - 2) if nhhmem17>2
+    gen familyshare = N + C
+    drop N C
+    *Imputation
+    gen pension_csg_crds = 0
+    replace pension_csg_crds = 0.043*(hitsil + hitsup) if hil > (6584+(familyshare - 1))*1759 & dname=="fr00" // 2002 figures deflated to 2000 prices using WDI CPI
+    replace pension_csg_crds = 0.067*(hitsil + hitsup) if hil > (7796+(familyshare - 1))*2120 & dname=="fr00" // 2002 figures deflated to 2000 prices using WDI CPI
+    replace pension_csg_crds = 0.043*(hitsil + hitsup) if hil > (7165+(familyshare - 1))*1914 & dname=="fr05"
+    replace pension_csg_crds = 0.071*(hitsil + hitsup) if hil > (8492+(familyshare - 1))*2308 & dname=="fr05"
+    replace pension_csg_crds = 0.043*(hitsil + hitsup) if hil > (9876+(familyshare - 1))*2637 & dname=="fr10"
+    replace pension_csg_crds = 0.071*(hitsil + hitsup) if hil > (11793+(familyshare - 1))*3178 & dname=="fr10"
+    /* The correct formulation to impute pension_csg_crds is to inc2 instead
+    of hil to define the ceilings. However, this creates a looping in the
+    calculation. I have used hil as a proxy for inc2, which will cause
+    pension_csg_crds to be underestimated. I can't think of a simple
+    alternative to this approach. */
+end
+
+
 **********************************************************
 * Output: Loop over datasets and output summary statistics
 **********************************************************
@@ -252,12 +343,15 @@ foreach ccyy in $datasets {
   }
   quietly ppp_equiv
   quietly def_tax_and_transfer
+  if `cc' == "fr" {
+    quietly FR_def_tax_and_transfer
+  }
   foreach certain_ccyy in $fixpensions_datasets1 {
     quietly fix_pensions_type1 if "`ccyy'" == "`certain_ccyy'"
-    }
+  }
   foreach certain_ccyy in $fixpensions_datasets3 {
     quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
-    }
+  }
   foreach var in $hvarsinc $hvarsflow $hvarsnew {
     quietly capture sgini `var' [aw=hwgt*nhhmem]
     local `var'_gini = r(coeff)
