@@ -22,7 +22,7 @@ global fixpension_datasets3 "ie04 ie07 ie10 uk99 uk04 uk07 uk10"
 *************************************************************
 
 program define gen_pvars
-  merge m:1 dname using "$mydata\molcke\molcke_ssc_20160630.dta", keep(match) nogenerate
+  merge m:1 dname using "$mydata/molcke/molcke_ssc_20160630.dta", keep(match) nogenerate
 
   * Generate Employee Social Security Contributions
   gen psscee=.
@@ -57,7 +57,7 @@ program define gen_pvars
 end
 
 program define FR_gen_pvars
-  merge m:1 dname using "$mydata\molcke\molcke_ssc_20160711.dta", keep(match) nogenerate
+  merge m:1 dname using "$mydata/molcke/molcke_ssc_20160711.dta", keep(match) nogenerate
   * Impute individual level income tax from household level income tax
   bysort hid: egen hemp = total(emp) , missing									// missing option to set a total of all missing values to missing rather than zero.
   drop pxiti
@@ -154,7 +154,7 @@ end
 
 program define ppp_equiv
   * Define PPP conversions to 2011 international dollars (ppp)
-  merge m:1 dname using "$mydata\molcke\ppp.dta", keep(match) nogenerate
+  merge m:1 dname using "$mydata/molcke/ppp.dta", keep(match) nogenerate
 
   * Complete the PPP conversions and equivalence scales with replace commands
   foreach var in $hvarsflow $hvarsnew {
