@@ -8,7 +8,7 @@ global hvarsflow "hil hic pension hits hitsil hitsup hitsap hxit hxiti hxits hc 
 
 global hvarsnew "hsscer hsscee" // Local currency, imputed
 
-global hvarsinc "inc1 inc2 inc3 inc4 inc5 tax transfer allpension pubpension pripension hxct hssc" // Summation / imputed after PPP conversion
+global hvarsinc "inc1 inc2 inc3 inc4 inc5 tax transfer allpension pubpension pripension hssc" // Summation / imputed after PPP conversion
 
 global fixpensions_datasets1 "at04 ee10 lu04 nl04 no04 no10 se00 se05"  // hitsil missing, hicvip defined
 
@@ -33,30 +33,7 @@ program define gen_pvars
   replace psscee = (pil-ee_c4)*ee_r5 + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c4 & ee_c4!=.
   replace psscee = (pil-ee_c5)*ee_r6 + ee_r5*(ee_c5 - ee_c4) + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1  if pil>ee_c5 & ee_c5!=.
 
-    * Manual corrections for certain datasets (Employee Social Security Contributions)
-    *Belgium 2000 BE00
-    replace psscee=psscee-2600 if pil>34000 & pil<=42500 & dname=="be00"
-    replace psscee=psscee-(2600-0.4*(pil-42500)) if pil>42500 & pil<=4900 & dname=="be00"
-    bysort hid: egen hil=total(pil) if dname=="be00"
-    replace psscee=psscee+0.09*hil if hil>750000 & hil<=850000 & dname=="be00"
-    replace psscee=psscee+9000+0.013*hil if hil>850000 & hil<=2426924 & dname=="be00"
-    replace psscee=psscee+29500 if hil>2426924 & dname=="be00"
-    *Denmark 2007 DK07
-    replace psscee=psscee+8052+975.6 if pil>0 & dname=="dk07"
-    *Denmark 2010 DK10
-    replace psscee=psscee+10244 if pil>0 & dname=="dk10"
-    *Greece 2000 GR00
-    replace psscee=0.159*6783000 if pil>6783000 & age>29 & dname=="gr00" //it would be betzter if I used year of birth
-    *Greece 2004 GR04
-    replace psscee=0.16*24699 if pil>24699 & age>33 & dname=="gr04"
-    *Greece 2007 GR07
-    replace psscee=0.16*27780 if pil>27780  & age>36 & dname=="gr07"
-    *Greece 2010 GR10
-    replace psscee=0.16*29187 if pil>29187  & age>39 & dname=="gr10"
-    *Iceland 2007 IS07
-    replace psscee=6314 if pil>ee_c1 & dname=="is07" //Should there also be an age restriction like in 2010?
-    *Iceland 2010 IS10
-    replace psscee=8400+17200 if pil>ee_c1 & age>=16 & age<=70 & dname=="is10"
+  manual_corrections_employee_ssc
 
   * Generate Employer Social Security Contributions
   gen psscer=.
@@ -67,21 +44,7 @@ program define gen_pvars
   replace psscer = (pil-er_c4)*er_r5 + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c4 & er_c4!=.
   replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1  if pil>er_c5 & er_c5!=.
 
-    * Manual corrections for certain datasets (Employer Social Security Contributions)
-    *Estonia 2010 ee10
-    replace psscer = psscer + 17832 if pil>0 & dname=="ee10"
-    *France 2005 fr05
-    replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" // I am not sure I have this adjustment correct.
-    *France 2010 fr10
-    replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
-    *Ireland 2000 ie00
-    replace psscer=pil*.085 if  pil<14560 & dname=="ie00" // I could have easily included these changes for Ireland in the rates and ceilings.
-    *Ireland 2004 ie04
-    replace psscer=pil*.085 if  pil<18512 & dname=="ie04"
-    *Ireland 2007 ie07
-    replace psscer=pil*.085 if  pil<18512 & dname=="ie07"
-    *Ireland 2010 ie10
-    replace psscer=pil*.085 if  pil<18512 & dname=="ie10"
+  manual_corrections_employer_ssc
 
   * Convert variables to household level
   bysort hid: egen hsscee=total(psscee)
@@ -91,6 +54,55 @@ program define gen_pvars
   drop if hid==.
   duplicates drop hid, force
 
+end
+
+***************************************************************************
+* Helper Program: Manual corrections
+***************************************************************************
+
+program define manual_corrections_employee_ssc
+  * Manual corrections for certain datasets (Employee Social Security Contributions)
+  *Belgium 2000 BE00
+  replace psscee=psscee-2600 if pil>34000 & pil<=42500 & dname=="be00"
+  replace psscee=psscee-(2600-0.4*(pil-42500)) if pil>42500 & pil<=4900 & dname=="be00"
+  bysort hid: egen hil=total(pil) if dname=="be00"
+  replace psscee=psscee+0.09*hil if hil>750000 & hil<=850000 & dname=="be00"
+  replace psscee=psscee+9000+0.013*hil if hil>850000 & hil<=2426924 & dname=="be00"
+  replace psscee=psscee+29500 if hil>2426924 & dname=="be00"
+  *Denmark 2007 DK07
+  replace psscee=psscee+8052+975.6 if pil>0 & dname=="dk07"
+  *Denmark 2010 DK10
+  replace psscee=psscee+10244 if pil>0 & dname=="dk10"
+  *Greece 2000 GR00
+  replace psscee=0.159*6783000 if pil>6783000 & age>29 & dname=="gr00" //it would be betzter if I used year of birth
+  *Greece 2004 GR04
+  replace psscee=0.16*24699 if pil>24699 & age>33 & dname=="gr04"
+  *Greece 2007 GR07
+  replace psscee=0.16*27780 if pil>27780  & age>36 & dname=="gr07"
+  *Greece 2010 GR10
+  replace psscee=0.16*29187 if pil>29187  & age>39 & dname=="gr10"
+  *Iceland 2007 IS07
+  replace psscee=6314 if pil>ee_c1 & dname=="is07" //Should there also be an age restriction like in 2010?
+  *Iceland 2010 IS10
+  replace psscee=8400+17200 if pil>ee_c1 & age>=16 & age<=70 & dname=="is10"
+end
+
+program define manual_corrections_employer_ssc
+  * Manual corrections for certain datasets (Employer Social Security Contributions)
+  *Estonia 2010 ee10
+  replace psscer = psscer + 17832 if pil>0 & dname=="ee10"
+  *France 2005 fr05
+  replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" // I am not sure I have this adjustment correct.
+  *France 2010 fr10
+  replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
+  *Ireland 2000 ie00
+  replace psscer=pil*.085 if  pil<14560 & dname=="ie00" // I could have easily included these changes for Ireland in the rates and ceilings.
+  *Ireland 2004 ie04
+  replace psscer=pil*.085 if  pil<18512 & dname=="ie04"
+  *Ireland 2007 ie07
+  replace psscer=pil*.085 if  pil<18512 & dname=="ie07"
+  *Ireland 2010 ie10
+  replace psscer=pil*.085 if  pil<18512 & dname=="ie10"
 end
 
 ***************************************************************************
