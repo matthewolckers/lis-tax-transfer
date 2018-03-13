@@ -232,33 +232,47 @@ end
 * Output: Loop over datasets and output summary statistics
 **********************************************************
 
- foreach ccyy in $datasets {
-   use $pvars using $`ccyy'p,clear
-   quietly gen_pvars
-   quietly merge 1:1 hid using $`ccyy'h, keepusing($hvars $hvarsflow) nogenerate
-   quietly ppp_equiv
-   quietly def_tax_and_transfer
-   foreach certain_ccyy in $fixpensions_datasets1 {
-      quietly fix_pensions_type1 if "`ccyy'" == "`certain_ccyy'"
+foreach ccyy in $datasets {
+  quietly use $pvars using $`ccyy'p, clear
+  local cc = substr("`ccyy'",1,2)
+  if `cc' == "fr" {
+    quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
+    quietly FR_gen_pvars
+  }
+  else if `cc' == "it" {
+    quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
+    quietly IT_gen_pvars
+  }
+  else {
+    quietly gen_pvars
+  }
+  quietly merge 1:1 hid using $`ccyy'h, keepusing($hvars $hvarsflow) nogenerate
+  if `cc' == "fr" {
+    quietly correct_dhi
+  }
+  quietly ppp_equiv
+  quietly def_tax_and_transfer
+  foreach certain_ccyy in $fixpensions_datasets1 {
+    quietly fix_pensions_type1 if "`ccyy'" == "`certain_ccyy'"
+    }
+  foreach certain_ccyy in $fixpensions_datasets3 {
+    quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
+    }
+  foreach var in $hvarsinc $hvarsflow $hvarsnew {
+    quietly capture sgini `var' [aw=hwgt*nhhmem]
+    local `var'_gini = r(coeff)
+    quietly sum `var' [w=hwgt*nhhmem]
+    local `var'_mean = r(mean)
+    foreach sortvar in inc1 inc2 inc3 inc4 inc5 {
+      quietly capture sgini `var' [aw=hwgt*nhhmem], sortvar(`sortvar')
+      local `var'conc_`sortvar' = r(coeff)
       }
-   foreach certain_ccyy in $fixpensions_datasets3 {
-      quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
+    forvalues num = 1/10 {
+      quietly sum `var' [w=hwgt*nhhmem] if decile==`num'
+      local `var'_mean_`num' = r(mean)
+      local `var'_min_`num' = r(min)
+      local `var'_max_`num' = r(max)
       }
-   foreach var in $hvarsinc $hvarsflow $hvarsnew {
-      quietly capture sgini `var' [aw=hwgt*nhhmem]
-      local `var'_gini = r(coeff)
-      quietly sum `var' [w=hwgt*nhhmem]
-      local `var'_mean = r(mean)
-      foreach sortvar in inc1 inc2 inc3 inc4 inc5 {
-        quietly capture sgini `var' [aw=hwgt*nhhmem], sortvar(`sortvar')
-        local `var'conc_`sortvar' = r(coeff)
-        }
-      forvalues num = 1/10 {
-        quietly sum `var' [w=hwgt*nhhmem] if decile==`num'
-        local `var'_mean_`num' = r(mean)
-        local `var'_min_`num' = r(min)
-        local `var'_max_`num' = r(max)
-        }
    }
      if "`ccyy'" == "at04" di "countryyear,decile,inc1_mean,inc1_min,inc1_max,inc2_mean,inc2_min,inc2_max,inc3_mean,inc3_min,inc3_max,inc4_mean,inc4_min,inc4_max,inc5_mean,inc5_min,inc5_max,transfer_mean,transfer_min,transfer_max,tax_mean,tax_min,tax_max"
      di "`ccyy',D01,`inc1_mean_1',`inc1_min_1',`inc1_max_1',`inc2_mean_1',`inc2_min_1',`inc2_max_1',`inc3_mean_1',`inc3_min_1',`inc3_max_1',`inc4_mean_1',`inc4_min_1',`inc4_max_1',`inc5_mean_1',`inc5_min_1',`inc5_max_1',`transfer_mean_1',`transfer_min_1',`transfer_max_1',`tax_mean_1',`tax_min_1',`tax_max_1'"
