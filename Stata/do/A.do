@@ -27,6 +27,10 @@ global fixpension_datasets3 "ie04 ie07 ie10 uk99 uk04 uk07 uk10"
 * Program: Generate SSC variables from person level dataset
 *************************************************************
 
+program define merge_ssc
+  merge m:1 dname using "$mydata/molcke/molcke_ssc_20160630.dta", keep(match) nogenerate
+end
+
 program define gen_employee_ssc
   * Generate Employee Social Security Contributions
   gen psscee=.
@@ -38,7 +42,7 @@ program define gen_employee_ssc
   replace psscee = (pil-ee_c5)*ee_r6 + ee_r5*(ee_c5 - ee_c4) + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1  if pil>ee_c5 & ee_c5!=.
 end
 
-program defin gen_employer_ssc
+program define gen_employer_ssc
   * Generate Employer Social Security Contributions
   gen psscer=.
   replace psscer = pil*er_r1
@@ -60,7 +64,7 @@ program define convert_ssc_to_household_level
 end
 
 program define gen_pvars
-  merge m:1 dname using "$mydata/molcke/molcke_ssc_20160630.dta", keep(match) nogenerate
+  merge_ssc
   gen_employee_ssc
   manual_corrections_employee_ssc
   gen_employer_ssc
@@ -69,7 +73,7 @@ program define gen_pvars
 end
 
 program define FR_gen_pvars
-  merge m:1 dname using "$mydata/molcke/molcke_ssc_20160711.dta", keep(match) nogenerate
+  merge_ssc
   * Impute individual level income tax from household level income tax
   bysort hid: egen hemp = total(emp) , missing // missing option to set a total of all missing values to missing rather than zero.
   drop pxiti
@@ -91,7 +95,7 @@ program define FR_gen_pvars
 end
 
 program define IT_gen_pvars
-  merge m:1 dname using "$mydata\molcke\molcke_ssc_20160711.dta", keep(match) nogenerate
+  merge_ssc
   **IMPORTANT**Convert Italian datasets from net to gross
   replace pil=pil+pxit
   gen psscee=. // hxits is defined for italy, so no need to impute
@@ -341,6 +345,9 @@ foreach ccyy in $datasets {
   else if `cc' == "it" {
     quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
     quietly IT_gen_pvars
+  }
+  else if strpos(net_datasets,`ccyy') > 0 {
+    quietly NET_gen_pvars
   }
   else {
     quietly gen_pvars
