@@ -324,11 +324,6 @@ program define FR_tax_CSG_CRDS
     replace pension_csg_crds = 0.071*(hitsil + hitsup) if hil > (8492+(familyshare - 1))*2308 & dname=="fr05"
     replace pension_csg_crds = 0.043*(hitsil + hitsup) if hil > (9876+(familyshare - 1))*2637 & dname=="fr10"
     replace pension_csg_crds = 0.071*(hitsil + hitsup) if hil > (11793+(familyshare - 1))*3178 & dname=="fr10"
-    /* The correct formulation to impute pension_csg_crds is to inc2 instead
-    of hil to define the ceilings. However, this creates a looping in the
-    calculation. I have used hil as a proxy for inc2, which will cause
-    pension_csg_crds to be underestimated. I can't think of a simple
-    alternative to this approach. */
 end
 
 
