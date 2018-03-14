@@ -1,3 +1,7 @@
+*************************************************************
+* Define globals
+*************************************************************
+
 global datasets "at04 au03 au08 au10 ca04 ca07 ca10 ch00 ch02 ch04 cz02 cz04 cz07 cz10 de00 de04 de07 de10 dk00 dk04 dk07 dk10 ee10 es07 es10 es13 fi00 fi04 fi07 fi10 fr00 fr05 fr10 gr07 gr10 ie04 ie07 ie10 il10 il12 is04 is07 is10 it04 it08 it10 jp08 kr06 lu04 lu07 lu10 nl04 nl07 nl10 nl99 no00 no04 no07 no10 pl04 pl07 pl10 pl13 pl99 se00 se05 sk04 sk07 sk10 uk99 uk04 uk07 uk10 us00 us04 us07 us10 us13"
 
 global net_datasets "at00 be00 gr00 hu05 hu07 hu09 hu12 hu99 ie00 it00 lu00 mx00 mx02 mx04 mx08 mx10 mx12 mx98 si10" // Removed es00 and it98 in this version since they contain dupicates and missing values respectively in pil.
@@ -23,9 +27,7 @@ global fixpension_datasets3 "ie04 ie07 ie10 uk99 uk04 uk07 uk10"
 * Program: Generate SSC variables from person level dataset
 *************************************************************
 
-program define gen_pvars
-  merge m:1 dname using "$mydata/molcke/molcke_ssc_20160630.dta", keep(match) nogenerate
-
+program define gen_employee_ssc
   * Generate Employee Social Security Contributions
   gen psscee=.
   replace psscee = pil*ee_r1
@@ -34,9 +36,9 @@ program define gen_pvars
   replace psscee = (pil-ee_c3)*ee_r4 + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c3 & ee_c3!=.
   replace psscee = (pil-ee_c4)*ee_r5 + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c4 & ee_c4!=.
   replace psscee = (pil-ee_c5)*ee_r6 + ee_r5*(ee_c5 - ee_c4) + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1  if pil>ee_c5 & ee_c5!=.
+end
 
-  manual_corrections_employee_ssc
-
+program defin gen_employer_ssc
   * Generate Employer Social Security Contributions
   gen psscer=.
   replace psscer = pil*er_r1
@@ -45,9 +47,9 @@ program define gen_pvars
   replace psscer = (pil-er_c3)*er_r4 + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c3 & er_c3!=.
   replace psscer = (pil-er_c4)*er_r5 + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c4 & er_c4!=.
   replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1  if pil>er_c5 & er_c5!=.
+end
 
-  manual_corrections_employer_ssc
-
+program define convert_ssc_to_household_level
   * Convert variables to household level
   bysort hid: egen hsscee=total(psscee)
   bysort hid: egen hsscer=total(psscer)
@@ -55,7 +57,15 @@ program define gen_pvars
   keep hid hsscee hsscer
   drop if hid==.
   duplicates drop hid, force
+end
 
+program define gen_pvars
+  merge m:1 dname using "$mydata/molcke/molcke_ssc_20160630.dta", keep(match) nogenerate
+  gen_employee_ssc
+  manual_corrections_employee_ssc
+  gen_employer_ssc
+  manual_corrections_employer_ssc
+  convert_ssc_to_household_level
 end
 
 program define FR_gen_pvars
@@ -91,59 +101,39 @@ program define FR_gen_pvars
 	replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" //I am not sure I have this adjustment correct.
 	*France 2010 fr10
 	replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
-  * Convert variables to household level
-	bysort hid: egen hsscee=total(psscee)
-	bysort hid: egen hsscer=total(psscer)
-  * Keep only household level SSC and household id
-	keep hid hsscee hsscer
-	drop if hid==.
-	duplicates drop hid, force
+
+  convert_ssc_to_household_level
 
 end
 
 program define IT_gen_pvars
 
-merge m:1 dname using "$mydata\molcke\molcke_ssc_20160711.dta", keep(match) nogenerate
+  merge m:1 dname using "$mydata\molcke\molcke_ssc_20160711.dta", keep(match) nogenerate
 
-**IMPORTANT**Convert Italian datasets from net to gross
-replace pil=pil+pxit
+  **IMPORTANT**Convert Italian datasets from net to gross
+  replace pil=pil+pxit
 
-* Generate Employee Social Security Contributions
-gen psscee=. // hxits is defined for italy, so no need to impute
+  * Generate Employee Social Security Contributions
+  gen psscee=. // hxits is defined for italy, so no need to impute
 
-* Generate Employer Social Security Contributions
-gen psscer=.
-replace psscer = pil*er_r1
-replace psscer = (pil-er_c1)*er_r2 + er_r1*er_c1  if pil>er_c1 & er_c1!=.
-replace psscer = (pil-er_c2)*er_r3 + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c2 & er_c2!=.
-replace psscer = (pil-er_c3)*er_r4 + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c3 & er_c3!=.
-replace psscer = (pil-er_c4)*er_r5 + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c4 & er_c4!=.
-replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1  if pil>er_c5 & er_c5!=.
+  * Generate Employer Social Security Contributions
+  gen psscer=.
+  replace psscer = pil*er_r1
+  replace psscer = (pil-er_c1)*er_r2 + er_r1*er_c1  if pil>er_c1 & er_c1!=.
+  replace psscer = (pil-er_c2)*er_r3 + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c2 & er_c2!=.
+  replace psscer = (pil-er_c3)*er_r4 + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c3 & er_c3!=.
+  replace psscer = (pil-er_c4)*er_r5 + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c4 & er_c4!=.
+  replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1  if pil>er_c5 & er_c5!=.
 
-* Convert variables to household level
- bysort hid: egen hsscee=total(psscee)
-
- bysort hid: egen hsscer=total(psscer)
-
- keep hid hsscee hsscer
- drop if hid==.
- duplicates drop hid, force
+  convert_ssc_to_household_level
 
 end
 
 program define NET_gen_pvars
   * Impute taxes for net datasets
   nearmrg dname using "$mydata\molcke\net_20161101.dta", nearvar(pil) lower keep(match) nogenerate
-  * Convert pil from net to gross
-  replace pil = pil + psscee + pinctax
-  * Convert variables to household level
-	bysort hid: egen hsscee=total(psscee)
-	bysort hid: egen hsscer=total(psscer)
-	bysort hid: egen hinctax=total(pinctax)
-	keep hid hsscee hsscer hinctax
-	drop if hid==.
-	duplicates drop hid, force
-
+  bysort hid: egen hinctax=total(pinctax)
+  convert_ssc_to_household_level
 end
 
 ***************************************************************************
