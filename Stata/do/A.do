@@ -71,7 +71,7 @@ end
 program define FR_gen_pvars
   merge m:1 dname using "$mydata/molcke/molcke_ssc_20160711.dta", keep(match) nogenerate
   * Impute individual level income tax from household level income tax
-  bysort hid: egen hemp = total(emp) , missing									// missing option to set a total of all missing values to missing rather than zero.
+  bysort hid: egen hemp = total(emp) , missing // missing option to set a total of all missing values to missing rather than zero.
   drop pxiti
   gen pxiti = hxiti/hemp
   replace pxiti =. if emp!=1
@@ -85,48 +85,18 @@ program define FR_gen_pvars
   replace psscee = (((pil-ee_c5)*ee_r6)/(1-ee_r6))  + ee_r5*(ee_c5 - ee_c4) + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1  if pil>ee_c5mix & ee_c5mix!=.
   **IMPORTANT**Convert French datasets from net to gross
   replace pil=pil+pxiti+psscee
-  * Generate Employer Social Security Contributions
-  gen psscer=.
-  replace psscer = pil*er_r1
-  replace psscer = (pil-er_c1)*er_r2 + er_r1*er_c1  if pil>er_c1 & er_c1!=.
-  replace psscer = (pil-er_c2)*er_r3 + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c2 & er_c2!=.
-  replace psscer = (pil-er_c3)*er_r4 + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c3 & er_c3!=.
-  replace psscer = (pil-er_c4)*er_r5 + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c4 & er_c4!=.
-  replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1  if pil>er_c5 & er_c5!=.
-	* Manual corrections for certain datasets (Employer Social Security Contributions)
-	*France 2000 fr00 (measured in Francs, not Euros)
-	replace psscer=psscer-(0.182*pil) if pil<=83898 & dname=="fr00"
-	replace psscer=psscer-(0.55*(111584.34-pil)) if pil>83898 & pil<=111584.34 & dname=="fr00"
-	*France 2005 fr05
-	replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" //I am not sure I have this adjustment correct.
-	*France 2010 fr10
-	replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
-
+  gen_employer_ssc
+  manual_corrections_employer_ssc
   convert_ssc_to_household_level
-
 end
 
 program define IT_gen_pvars
-
   merge m:1 dname using "$mydata\molcke\molcke_ssc_20160711.dta", keep(match) nogenerate
-
   **IMPORTANT**Convert Italian datasets from net to gross
   replace pil=pil+pxit
-
-  * Generate Employee Social Security Contributions
   gen psscee=. // hxits is defined for italy, so no need to impute
-
-  * Generate Employer Social Security Contributions
-  gen psscer=.
-  replace psscer = pil*er_r1
-  replace psscer = (pil-er_c1)*er_r2 + er_r1*er_c1  if pil>er_c1 & er_c1!=.
-  replace psscer = (pil-er_c2)*er_r3 + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c2 & er_c2!=.
-  replace psscer = (pil-er_c3)*er_r4 + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c3 & er_c3!=.
-  replace psscer = (pil-er_c4)*er_r5 + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1 if pil>er_c4 & er_c4!=.
-  replace psscer = (pil-er_c5)*er_r6 + er_r5*(er_c5 - er_c4) + er_r4*(er_c4 - er_c3) + er_r3*(er_c3 - er_c2) + er_r2*(er_c2 - er_c1) + er_r1*er_c1  if pil>er_c5 & er_c5!=.
-
+  gen_employer_ssc
   convert_ssc_to_household_level
-
 end
 
 program define NET_gen_pvars
@@ -183,6 +153,13 @@ program define manual_corrections_employer_ssc
   replace psscer=pil*.085 if  pil<18512 & dname=="ie07"
   *Ireland 2010 ie10
   replace psscer=pil*.085 if  pil<18512 & dname=="ie10"
+  *France 2000 fr00 (measured in Francs, not Euros)
+  replace psscer=psscer-(0.182*pil) if pil<=83898 & dname=="fr00"
+  replace psscer=psscer-(0.55*(111584.34-pil)) if pil>83898 & pil<=111584.34 & dname=="fr00"
+  *France 2005 fr05
+  replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" //I am not sure I have this adjustment correct.
+  *France 2010 fr10
+  replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
 end
 
 ***************************************************************************
