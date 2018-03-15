@@ -176,7 +176,7 @@ program define ppp_equiv
 
   * Complete the PPP conversions and equivalence scales with replace commands
   foreach var in $hvarsflow $hvarsnew {
-    replace `var' = (`var'*ppp)/(nhhmem^0.5)
+    replace `var' = (`var'*ppp_2011_usd)/(nhhmem^0.5)
     }
 
   * Trim and bottom code
