@@ -337,28 +337,28 @@ end
 
 foreach ccyy in $datasets {
   quietly use $pvars using $`ccyy'p, clear
-  local cc = substr("`ccyy'",1,2)
-  if `cc' == "fr" {
+  local cc : di substr("`ccyy'",1,2)
+  if "`cc'" == "fr" {
     quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
     quietly FR_gen_pvars
   }
-  else if `cc' == "it" {
+  else if "`cc'" == "it" {
     quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
     quietly IT_gen_pvars
   }
-  else if strpos(net_datasets,`ccyy') > 0 {
+  else if strpos("$net_datasets","`ccyy'") > 0 {
     quietly NET_gen_pvars
   }
   else {
     quietly gen_pvars
   }
   quietly merge 1:1 hid using $`ccyy'h, keepusing($hvars $hvarsflow) nogenerate
-  if `cc' == "fr" {
+  if "`cc'" == "fr" {
     quietly correct_dhi
   }
   quietly ppp_equiv
   quietly def_tax_and_transfer
-  if `cc' == "fr" {
+  if "`cc'" == "fr" {
     quietly FR_def_tax_and_transfer
   }
   foreach certain_ccyy in $fixpensions_datasets1 {
