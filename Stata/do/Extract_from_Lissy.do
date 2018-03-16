@@ -6,7 +6,7 @@ global datasets "at04 au03 au08 au10 ca04 ca07 ca10 ch00 ch02 ch04 cz02 cz04 cz0
 
 global net_datasets "at00 be00 gr00 hu05 hu07 hu09 hu12 hu99 ie00 it00 lu00 mx00 mx02 mx04 mx08 mx10 mx12 mx98 si10" // Removed es00 and it98 in this version since they contain dupicates and missing values respectively in pil.
 
-global pvars "pid hid dname pil age"
+global pvars "pid hid dname pil pxit pxiti pxits age emp"
 
 global hvars "hid dname nhhmem dhi nhhmem65 hwgt"
 
