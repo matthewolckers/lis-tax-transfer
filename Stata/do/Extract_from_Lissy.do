@@ -330,6 +330,23 @@ program define FR_tax_CSG_CRDS
     replace pension_csg_crds = 0.071*(hitsil + hitsup) if hil > (11793+(familyshare - 1))*3178 & dname=="fr10"
 end
 
+***************************************************************
+* Program: Correct dhi (disposable household income) for France
+***************************************************************
+
+/* Notes: For France particularly, dhi is provided net of income taxes, even
+though the income tax variable is available. Ths is because income taxes are
+collected once per year, directly from households. The income tax variable in
+LIS is the amount of the previous year's tax. So it is just a proxy of current
+income tax. */
+
+program define correct_dhi
+  gen hxiti_temp = hxiti
+  replace hxiti_temp = 0 if hxiti<0
+  replace hxiti_temp = 0 if hxit==.
+  replace dhi = dhi - hxiti_temp
+end
+
 
 **********************************************************
 * Output: Loop over datasets and output summary statistics
