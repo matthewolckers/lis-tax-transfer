@@ -254,7 +254,7 @@ transfers in Sweden and Norway. The following code adjusts the definitions of
 the income variables for use in Sweden and Norway */
 
 program define fix_pensions_type1
-  drop pubpension transfer inc1 inc2 inc3 inc4 inc_decile decile
+  drop pubpension transfer inc1 inc2 inc3 inc4 decile
   gen pubpension = pension - hicvip - hitsap
   *gen pripension = hicvip // No change
   *gen allpension = pension - hitsap // No change
@@ -276,7 +276,7 @@ pensions, a subcategory of assistance benefits) out of transfers, and into
 pensions.  */
 
 program define fix_pensions_type3
-  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc_decile decile
+  drop pubpension allpension transfer inc1 inc2 inc3 inc4 decile
   gen pubpension = hitsil + hitsup + hitsap // Added "+hitsap"
   *gen pripension = hicvip // No change
   gen allpension = pension // Removed "-hitsap"
@@ -293,7 +293,7 @@ end
 ***************************************************************************
 
 program define FR_def_tax_and_transfer
-  drop tax inc1 inc2 inc3 inc4 inc_decile decile
+  drop tax inc1 inc2 inc3 inc4 decile
   * Impute the taxes CSG and CRDS
   FR_tax_CSG_CRDS
   * Define the components of the income stages
