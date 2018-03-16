@@ -8,7 +8,7 @@ global net_datasets "at00 be00 gr00 hu05 hu07 hu09 hu12 hu99 ie00 it00 lu00 mx00
 
 global pvars "pid hid dname pil pxit pxiti pxits age emp"
 
-global hvars "hid dname nhhmem dhi nhhmem65 hwgt"
+global hvars "hid dname nhhmem dhi nhhmem17 nhhmem65 hwgt"
 
 global hvarsflow "hil hic pension hits hitsil hitsup hitsap hxit hxiti hxits hc hicvip dhi hitsilmip hitsilo hitsilep hitsilwi hitsilepo hitsilepd hitsileps" // Local currency, given in the datasets
 
