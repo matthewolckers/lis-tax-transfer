@@ -106,8 +106,14 @@ end
 program define NET_gen_pvars
   * Impute taxes for net datasets
   nearmrg dname using "$mydata/molcke/net_20161101.dta", nearvar(pil) lower keep(match) nogenerate
-  bysort hid: egen hinctax=total(pinctax)
-  convert_ssc_to_household_level
+  * Convert variables to household level
+  bysort hid: egen hxiti=total(pinctax)
+  bysort hid: egen hsscee=total(psscee)
+  bysort hid: egen hsscer=total(psscer)
+  * Keep only household level SSC and household id
+  keep hid hsscee hsscer hxiti
+  drop if hid==.
+  duplicates drop hid, force
 end
 
 ***************************************************************************
