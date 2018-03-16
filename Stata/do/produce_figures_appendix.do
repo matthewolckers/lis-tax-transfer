@@ -1,7 +1,7 @@
 clear
 cd  "/home/m.olckers/U/LIS Four Levers/"
 
-use "LIS Reducing Inequality - 17 - Country (No imputations).dta", clear
+use "LIS Reducing Inequality - 19 - Country.dta", clear
 
 * Set scheme and save figures in a folder with the scheme name
 set scheme plotplain, perm
@@ -26,8 +26,6 @@ gen transshare=transfer_mean/inc2_mean
 gen transLvL=transfer_mean/inc4_mean
 gen taxshare=tax_mean/inc3_mean
 gen taxLvL=tax_mean/inc4_mean
-gen constaxshare=hxct_mean/inc4_mean
-gen constaxLvL=hxct_mean/inc4_mean
 gen pubpensionshare=pubpension_mean/inc1_mean
 gen pubpensionLvL=pubpension_mean/inc4_mean
 gen totalbenefit_mean=transfer_mean+pubpension_mean
@@ -40,7 +38,6 @@ gen pubpensionrate= pubpension_mean/inc1_mean
 
 
 
-gen totaltaxshare=(hxct_mean+tax_mean)/inc3_mean
 
 gen SSCshare=hssc_mean/inc3_mean
 gen SSCLvL=hssc_mean/inc4_mean
@@ -67,22 +64,13 @@ gen kakwani_pension= pubpension_conc_inc2-inc2_gini
 gen r2to4=inc2_gini-inc4_gini
 gen r3to4=inc3_gini-inc4_gini
 gen r2to3=inc2_gini-inc3_gini
-gen r2to5=inc2_gini-inc5_gini
-gen r4to5=inc4_gini-inc5_gini
-gen r3to5=inc3_gini-inc5_gini
 
 /*calcul du reranking*/
 
 gen Rerank2=inc2_conc_inc2-inc2_conc_inc1
 gen Rerank3=inc3_conc_inc3-inc3_conc_inc2
 gen Rerank4=inc4_conc_inc4-inc4_conc_inc3
-gen Rerank5=inc5_conc_inc5-inc5_conc_inc4
-gen Rerank25=inc5_conc_inc5-inc5_conc_inc2
 gen Rerank24=inc4_conc_inc4-inc4_conc_inc2
-
-/*calcul du total kakwani*/
-
-gen totaltax_kakwani=(r3to5+inc5_conc_inc5-inc5_conc_inc3)*(1-totaltaxshare)/totaltaxshare
 
 /*Calcul de la redistribution verticale (directement Ã  partir du Reynold Smolenski, et indirectement Ã  partir du Kakwani*/
 
@@ -137,8 +125,6 @@ gen transshare=transfer_mean/inc2_mean
 gen transLvL=transfer_mean/inc4_mean
 gen taxshare=tax_mean/inc3_mean
 gen taxLvL=tax_mean/inc4_mean
-gen constaxshare=hxct_mean/inc4_mean
-gen constaxLvL=hxct_mean/inc4_mean
 gen pubpensionshare=pubpension_mean/inc1_mean
 gen pubpensionLvL=pubpension_mean/inc4_mean
 gen totalbenefit_mean=transfer_mean+pubpension_mean
@@ -151,7 +137,6 @@ gen pubpensionrate= pubpension_mean/inc1_mean
 
 
 
-gen totaltaxshare=(hxct_mean+tax_mean)/inc3_mean
 
 gen SSCshare=hssc_mean/inc3_mean
 gen SSCLvL=hssc_mean/inc4_mean
@@ -178,22 +163,14 @@ gen kakwani_pension= pubpension_conc_inc2-inc2_gini
 gen r2to4=inc2_gini-inc4_gini
 gen r3to4=inc3_gini-inc4_gini
 gen r2to3=inc2_gini-inc3_gini
-gen r2to5=inc2_gini-inc5_gini
-gen r4to5=inc4_gini-inc5_gini
-gen r3to5=inc3_gini-inc5_gini
 
 /*calcul du reranking*/
 
 gen Rerank2=inc2_conc_inc2-inc2_conc_inc1
 gen Rerank3=inc3_conc_inc3-inc3_conc_inc2
 gen Rerank4=inc4_conc_inc4-inc4_conc_inc3
-gen Rerank5=inc5_conc_inc5-inc5_conc_inc4
-gen Rerank25=inc5_conc_inc5-inc5_conc_inc2
 gen Rerank24=inc4_conc_inc4-inc4_conc_inc2
 
-/*calcul du total kakwani*/
-
-gen totaltax_kakwani=(r3to5+inc5_conc_inc5-inc5_conc_inc3)*(1-totaltaxshare)/totaltaxshare
 
 /*Calcul de la redistribution verticale (directement Ã  partir du Reynold Smolenski, et indirectement Ã  partir du Kakwani*/
 
