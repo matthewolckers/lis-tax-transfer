@@ -6,7 +6,7 @@ global datasets "at04 au03 au08 au10 ca04 ca07 ca10 ch00 ch02 ch04 cz02 cz04 cz0
 
 global net_datasets "at00 be00 gr00 hu05 hu07 hu09 hu12 hu99 ie00 it00 lu00 mx00 mx02 mx04 mx08 mx10 mx12 mx98 si10" // Removed es00 and it98 in this version since they contain dupicates and missing values respectively in pil.
 
-global pvars "pid hid dname pil pxit pxiti pxits age emp"
+global pvars "pid hid dname pil pxit pxiti pxits age emp relation"
 
 global hvars "hid dname nhhmem dhi nhhmem17 nhhmem65 hwgt"
 
@@ -57,10 +57,20 @@ program define convert_ssc_to_household_level
   * Convert variables to household level
   bysort hid: egen hsscee=total(psscee)
   bysort hid: egen hsscer=total(psscer)
-  * Keep only household level SSC and household id
-  keep hid hsscee hsscer
+  *create household activ age dummy*
+  activage_household
+  * Keep only household level SSC and household id and activage dummy
+  keep hid hsscee hsscer hhactivage
   drop if hid==.
   duplicates drop hid, force
+end
+
+program define activage_household
+	*create a dummy variable taking 1 if head of household btw 25 and 59
+	gen headactivage=1 if age>24 & age<60 & relation==1000
+	bys hid: egen hhactivage=mean(headactivage)
+	replace hhactivage=0 if hhactivage!=1
+	drop headactivage
 end
 
 program define gen_pvars
@@ -110,8 +120,10 @@ program define NET_gen_pvars
   bysort hid: egen hxiti=total(pinctax)
   bysort hid: egen hsscee=total(psscee)
   bysort hid: egen hsscer=total(psscer)
+    *create household activ age dummy*
+  activage_household
   * Keep only household level SSC and household id
-  keep hid hsscee hsscer hxiti
+  keep hid hsscee hsscer hxiti hhactivage
   drop if hid==.
   duplicates drop hid, force
 end
@@ -215,6 +227,7 @@ program define inc_and_decile
   }
   * Define the income deciles
   xtile decile = inc2 [w=hwgt*nhhmem], nquantiles(10) // already corrected for household size by ppp_equiv
+  xtile hhaa_decile = inc2 [w=hwgt*nhhmem] if hhactivage==1, nquantiles(10) // already corrected for household size by ppp_equiv
 
 end
 
@@ -260,7 +273,7 @@ transfers in Sweden and Norway. The following code adjusts the definitions of
 the income variables for use in Sweden and Norway */
 
 program define fix_pensions_type1
-  drop pubpension transfer inc1 inc2 inc3 inc4 decile
+  drop pubpension transfer inc1 inc2 inc3 inc4 decile hhaa_decile
   gen pubpension = pension - hicvip - hitsap
   *gen pripension = hicvip // No change
   *gen allpension = pension - hitsap // No change
@@ -282,7 +295,7 @@ pensions, a subcategory of assistance benefits) out of transfers, and into
 pensions.  */
 
 program define fix_pensions_type3
-  drop pubpension allpension transfer inc1 inc2 inc3 inc4 decile
+  drop pubpension allpension transfer inc1 inc2 inc3 inc4 decile hhaa_decile
   gen pubpension = hitsil + hitsup + hitsap // Added "+hitsap"
   *gen pripension = hicvip // No change
   gen allpension = pension // Removed "-hitsap"
@@ -299,7 +312,7 @@ end
 ***************************************************************************
 
 program define FR_def_tax_and_transfer
-  drop tax inc1 inc2 inc3 inc4 decile marketincome
+  drop tax inc1 inc2 inc3 inc4 decile hhaa_decile marketincome
   * Impute the taxes CSG and CRDS
   FR_tax_CSG_CRDS
   * Define the components of the income stages
@@ -393,11 +406,17 @@ foreach ccyy in $datasets {
   foreach var in $hvarsinc $hvarsflow $hvarsnew {
     quietly capture sgini `var' [aw=hwgt*nhhmem]
     local `var'_gini = r(coeff)
+	quietly capture sgini `var' [aw=hwgt*nhhmem] if hhactivage==1
+    local hhaa_`var'_gini = r(coeff)
     quietly sum `var' [w=hwgt*nhhmem]
     local `var'_mean = r(mean)
+	quietly sum `var' [w=hwgt*nhhmem] if hhactivage==1
+    local hhaa_`var'_mean = r(mean)
     foreach sortvar in inc1 inc2 inc3 inc4 {
       quietly capture sgini `var' [aw=hwgt*nhhmem], sortvar(`sortvar')
       local `var'conc_`sortvar' = r(coeff)
+	  quietly capture sgini `var' [aw=hwgt*nhhmem] if hhactivage==1, sortvar(`sortvar')
+      local hhaa_`var'conc_`sortvar' = r(coeff)
       }
     forvalues num = 1/10 {
       quietly sum `var' [w=hwgt*nhhmem] if decile==`num'
@@ -427,6 +446,8 @@ foreach ccyy in $datasets {
      di "Inequality Measures 4,`ccyy',`inc1conc_inc1',`inc1conc_inc2',`inc1conc_inc3',`inc1conc_inc4',`inc2conc_inc1',`inc2conc_inc2',`inc2conc_inc3',`inc2conc_inc4',`inc3conc_inc1',`inc3conc_inc2',`inc3conc_inc3',`inc3conc_inc4',`inc4conc_inc1',`inc4conc_inc2',`inc4conc_inc3',`inc4conc_inc4'"
      if "`ccyy'" == "at04"  di "Inequality Measures 5,countryyear,hxits_mean,hsscee_mean,hsscer_mean,hssc_mean,hxitsconc_inc3,hssceeconc_inc3,hsscerconc_inc3,hsscconc_inc3"
      di "Inequality Measures 5,`ccyy',`hxits_mean',`hsscee_mean',`hsscer_mean',`hssc_mean',`hxitsconc_inc3',`hssceeconc_inc3',`hsscerconc_inc3',`hsscconc_inc3'"
+	 if "`ccyy'" == "at04"  di "Inequality Measures 6,countryyear,hhaa_inc1_gini,hhaa_inc2_gini,hhaa_inc3_gini,hhaa_inc4_gini,hhaa_dhi_gini,hhaa_transfer_conc_inc1,hhaa_transfer_conc_inc2,hhaa_tax_conc_inc1,hhaa_tax_conc_inc2,hhaa_tax_conc_inc3,hhaa_tax_conc_inc4"
+	 di "Inequality Measures 6,`ccyy',`hhaa_inc1_gini',`hhaa_inc2_gini',`hhaa_inc3_gini',`hhaa_inc4_gini',`hhaa_dhi_gini',`hhaa_transferconc_inc1',`hhaa_transferconc_inc2',`hhaa_taxconc_inc1',`hhaa_taxconc_inc2',`hhaa_taxconc_inc3',`hhaa_taxconc_inc4'"
  }
 
 program drop _all
