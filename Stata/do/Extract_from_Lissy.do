@@ -68,8 +68,8 @@ end
 program define activage_household
 	*create a dummy variable taking 1 if head of household btw 25 and 59
 	gen headactivage=1 if age>24 & age<60 & relation==1000
-	bys hid: egen hhactivage=mean(headactivage)
-	replace hhactivage=0 if hhactivage!=1
+	replace headactivage=0 if headactivage!=1
+	bys hid: egen hhactivage=total(headactivage)
 	drop headactivage
 end
 
