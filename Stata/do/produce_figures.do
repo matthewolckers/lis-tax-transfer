@@ -1,12 +1,10 @@
 clear
-cd  "/home/m.olckers/U/LIS Four Levers/"
+cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
 
-
-use "LIS et OECD.dta", clear
+use "Stata\output\LIS et OECD.dta", clear
 
 * Set scheme and save figures in a folder with the scheme name
 set scheme plotplain, perm
-cd "/home/m.olckers/U/LIS Four Levers/figures/plotplain/"
 
 *****************************************
 * Labels
@@ -56,6 +54,11 @@ replace SSCer_kakwani=0 if SSCershare==0
 gen SSCee_kakwani=hxitsconc_inc3-inc3_gini
 gen kakwani_pension= pubpension_conc_inc2-inc2_gini
 
+gen tax_kakwani = tax_conc_inc3 - inc3_gini
+gen transfer_kakwani = transfer_conc_inc2 - inc2_gini
+
+gen hhaa_tax_kakwani = hhaa_tax_conc_inc3 - hhaa_inc3_gini
+gen hhaa_transfer_kakwani = hhaa_transfer_conc_inc2 - hhaa_inc2_gini
 
 /*Reduction gini (indice de Reynold-Smolensky)*/
 gen r2to4=inc2_gini-inc4_gini
@@ -72,7 +75,7 @@ gen Rerank4=inc4_conc_inc4-inc4_conc_inc3
 
 gen Ve23=r2to3+Rerank3
 gen Ve34=r3to4+Rerank4
-gen Ve45=r4to5+Rerank5
+
 
 gen VeSSC=(SSCshare/(1-SSCshare))*SSC_kakwani
 gen VeSSCer=(SSCershare/(1-SSCershare))*SSCer_kakwani
@@ -82,7 +85,6 @@ gen Vepension= -pubpensionrate/(1+pubpensionrate)*kakwani_pension
 
 gen Ve23verif=-transshare/(1+transshare)*transfer_kakwani
 gen Ve34verif=taxshare/(1-taxshare)*tax_kakwani
-gen Ve45verif=constaxshare/(1-constaxshare)*constax_kakwani
 
 /*autres variables d'indicateurs issues de l'OCDE*/
 gen bismindx=ssc/totalexp
@@ -94,7 +96,7 @@ gen LisorigOECD=sscee+tax1100
 gen Lisorig=(sscee+tax1100)/totaltax
 gen sum=sscee+sscem
 
-label var Lisorig "PÃ©rimÃ¨tre LIS: IR + cotis. employÃ©s"
+label var Lisorig "Perimetre LIS: IR + cotis. employees"
 label var sharetax "IR + cotis. employÃ©s et employeur"
 label var sharetax2 "IR + cotis. employÃ©s et employeur+ TVA & taxes sur la conso"
 label var taxshare "Tax rate"
@@ -107,13 +109,22 @@ label var r2to3 "Gini [Market income] - Gini [Gross Income]"
 *Nettoyage des donnÃ©es et crÃ©ation d'une zone (1 point par pays)
 ****************************************************************
 
+
+
+
 drop if inc2_gini==.
-drop if datatype=="Net"
+*drop if datatype=="Net"
+global net_datasets "at00 be00 gr00 hu05 hu07 hu09 hu12 hu99 ie00 it00 lu00 mx00 mx02 mx04 mx08 mx10 mx12 mx98 si10" 
+
+foreach ccyy in $net_datasets {
+drop if countryyear=="`ccyy'"
+}
+
 drop if countryyear=="kr06"|countryyear=="jp08" |countryyear=="is04"|country=="Poland"|country=="Switzerland"/*Japon: problÃ¨me sur les taxes qui apparaÃ®t lorsqu'on compare Ve34 et Ve34 verif; iceland 04 aberrant sur SSC; pologne aussi*/
 
 gen zone=1 if year==2003| year==2004|year==2005|countryyear=="il10"|countryyear=="ee10"|countryyear=="is07"|countryyear=="gr07"|countryyear=="es07"
-sort r2to5
-encode country if zone==1 & constax_kakwani!=., gen(ccode)
+sort r2to4
+*encode country if zone==1 & constax_kakwani!=., gen(ccode)
 
 gen ccodeshort=substr(countryyear, 1, 2)
 
