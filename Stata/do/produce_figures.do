@@ -36,6 +36,10 @@ gen totalbenefitshare=transfer_mean+pubpension_mean/inc2_mean
 gen totalbenefitLvL=transLvL+pubpensionLvL
 gen pubpensionrate= pubpension_mean/inc1_mean
 
+***hhaa version***
+gen hhaa_taxshare=hhaa_tax_mean/hhaa_inc3_mean
+gen hhaa_transshare=hhaa_transfer_mean/hhaa_inc2_mean
+
 
 gen SSCshare=hssc_mean/inc3_mean
 gen SSCLvL=hssc_mean/inc4_mean
@@ -64,6 +68,12 @@ gen hhaa_transfer_kakwani = hhaa_transfer_conc_inc2 - hhaa_inc2_gini
 gen r2to4=inc2_gini-inc4_gini
 gen r3to4=inc3_gini-inc4_gini
 gen r2to3=inc2_gini-inc3_gini
+
+
+/*Reduction gini (indice de Reynold-Smolensky) version hhaa*/
+gen hhaa_r2to4=hhaa_inc2_gini-hhaa_inc4_gini
+gen hhaa_r3to4=hhaa_inc3_gini-hhaa_inc4_gini
+gen hhaa_r2to3=hhaa_inc2_gini-hhaa_inc3_gini
 
 /*calcul du reranking*/
 
