@@ -23,7 +23,7 @@ save "Stata\output\Sumstat.dta", replace
 
 ******Isolate the 6 subpart, replace the variable name by the first obs, and merge to the Sumstat.dta"
 
-forvalues i=1(1)6{
+forvalues i=1(1)7{
 import delimited "Stata\log\logfile.csv", varnames(1) clear
 drop if decile=="D01"|decile=="D02"|decile=="D03"|decile=="D04"|decile=="D05"|decile=="D06"|decile=="D07"|decile=="D08"|decile=="D09"|decile=="D10"
 keep if countryyear=="Inequality Measures `i'"
@@ -51,7 +51,7 @@ save "Stata\output\Sumstat`i'.dta", replace
 merge 1:1 countryyear using "Stata\output\Sumstat.dta", gen(_merge`i')
 save "Stata\output\Sumstat.dta", replace
 }
-drop _merge1-_merge6
+drop _merge1-_merge7
 
 ***drop the obs containing the header****
 drop if countryyear=="countryyear"
