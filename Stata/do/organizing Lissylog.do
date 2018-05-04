@@ -59,11 +59,8 @@ drop if countryyear=="countryyear"
 **destring all variables but the first
 ds
 foreach v in `r(varlist)' {
-	if `v'!="countryyear"{
 destring `v', replace
 }
-}
-
 ********generate country code and year*****
 gen ccode = substr(countryyear, 1, 2)
 
@@ -97,9 +94,7 @@ keep if decile=="D01"|decile=="D02"|decile=="D03"|decile=="D04"|decile=="D05"|de
 
 ds
 foreach v in `r(varlist)' {
-	if `v'!="countryyear"{
 destring `v', replace
-}
 }
 
 ********generate country code and year*****
