@@ -72,7 +72,7 @@ replace year=year+2000 if year<50
 kountry ccode, from(iso2c)
 rename NAMES_STD country
 
-*****save the data set *****
+*****save the data set and include OECD macro data*****
 save "Stata\output\LIS Reducing Inequality Country.dta", replace
 
 sort country year
@@ -81,8 +81,21 @@ merge 1:1 country year using "Stata\dta\allOECD2.dta"
 
 save "Stata\output\LIS et OECD.dta", replace
 
+*************include EPL index*********
+import delimited "Stata\dta\EPL_OECD.csv", clear 
 
+rename time year
+rename value EPL
+keep country year EPL
 
+sort country year
+save "Stata\output\EPL.dta", replace
+
+use "Stata\output\LIS et OECD.dta", clear
+
+merge 1:1 country year using "Stata\output\EPL.dta", gen(_merge2)
+
+save "Stata\output\LIS et OECD.dta", replace
 
 *************************************
 *********Display the deciles ********
