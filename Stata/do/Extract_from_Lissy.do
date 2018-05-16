@@ -164,9 +164,9 @@ program define manual_corrections_employer_ssc
   *Estonia 2010 ee10
   replace psscer = psscer + 17832 if pil>0 & dname=="ee10"
   *France 2005 fr05
-  replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" // I am not sure I have this adjustment correct.
+  *replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" // I am not sure I have this adjustment correct.
   *France 2010 fr10
-  replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
+  *replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
   *Ireland 2000 ie00
   replace psscer=pil*.085 if  pil<14560 & dname=="ie00" // I could have easily included these changes for Ireland in the rates and ceilings.
   *Ireland 2004 ie04
@@ -353,15 +353,15 @@ end
 * Program: Correct dhi (disposable household income) for France
 ***************************************************************
 
-/* Notes: For France particularly, dhi is provided net of income taxes, even
+/* Notes: For France particularly, dhi is provided gross of income taxes, even
 though the income tax variable is available. Ths is because income taxes are
 collected once per year, directly from households. The income tax variable in
 LIS is the amount of the previous year's tax. So it is just a proxy of current
-income tax. */
+income tax. Here we compute the dhi net of income tax */
 
 program define correct_dhi
   gen hxiti_temp = hxiti
-  replace hxiti_temp = 0 if hxiti<0
+ * replace hxiti_temp = 0 if hxiti<0
   replace hxiti_temp = 0 if hxit==.
   replace dhi = dhi - hxiti_temp
 end
