@@ -327,9 +327,9 @@ program define FR_tax_CSG_CRDS
   * Labour income
   // CSG and CRDS on labour income is imputed within Employee SSC
   * Capital income
-  gen hic_csg_crds = hic * 0.087 if dname =="fr00"
+  gen hic_csg_crds = hic * 0.08 if dname =="fr00"
   replace hic_csg_crds = hic * 0.087 if dname =="fr05"
-  replace hic_csg_crds = hic * 0.08  if dname =="fr10"
+  replace hic_csg_crds = hic * 0.087  if dname =="fr10"
   * Pensions
     *Family share
     gen N = (nhhmem - nhhmem17)
