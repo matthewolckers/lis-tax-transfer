@@ -90,14 +90,17 @@ program define FR_gen_pvars
   gen pxiti = hxiti/hemp
   replace pxiti =. if emp!=1
   **IMPORTANT**Generate Employee Social Security Contributions
+  /*We assume that the original INSEE survey provides information about actual "net" wages in the sense "net of all contributions" and not in the sense of "declared income", which contains non deductible CSG. If not, one should 
+  remove this rate in the excel file and add it manually after we have the gross income*/
+
   gen psscee=.
-  replace psscee = ((pil*ee_r1)/(1-ee_r1))
-  replace psscee = (((pil-ee_c1)*ee_r2)/(1-ee_r2))  + ee_r1*ee_c1  if pil>ee_c1mix & ee_c1mix!=.
-  replace psscee = (((pil-ee_c2)*ee_r3)/(1-ee_r3))  + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c2mix & ee_c2mix!=.
-  replace psscee = (((pil-ee_c3)*ee_r4)/(1-ee_r4))  + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c3mix & ee_c3mix!=.
-  replace psscee = (((pil-ee_c4)*ee_r5)/(1-ee_r5))  + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1 if pil>ee_c4mix & ee_c4mix!=.
-  replace psscee = (((pil-ee_c5)*ee_r6)/(1-ee_r6))  + ee_r5*(ee_c5 - ee_c4) + ee_r4*(ee_c4 - ee_c3) + ee_r3*(ee_c3 - ee_c2) + ee_r2*(ee_c2 - ee_c1) + ee_r1*ee_c1  if pil>ee_c5mix & ee_c5mix!=.
-  **IMPORTANT**Convert French datasets from net to gross
+  replace psscee = pil*ee_r1/(1-ee_r1) if pil>0 & pil<=(ee_c1 - ee_r1*ee_c1) 
+  replace psscee = 1/(1-ee_r2)*(ee_r2*(pil - ee_c1) + ee_r1*ee_c1) if pil>(ee_c1 - ee_r1*ee_c1) & pil<=(ee_c2 - ee_r1*ee_c1 - ee_r2*(ee_c2-ee_c1))
+  replace psscee = 1/(1-ee_r3)*(ee_r3*(pil - ee_c2) + ee_r1*ee_c1 + ee_r2*(ee_c2-ee_c1)) if pil>(ee_c2 - ee_r2*(ee_c2-ee_c1) - ee_r1*ee_c1) & pil<=(ee_c3 - ee_r3*(ee_c3-ee_c2) - ee_r2*(ee_c2-ee_c1) - ee_r1*ee_c1)
+  replace psscee = 1/(1-ee_r4)*(ee_r4*(pil - ee_c3) + ee_r1*ee_c1 + ee_r2*(ee_c2-ee_c1) + ee_r3*(ee_c3 - ee_c2)) if pil>(ee_c3 - ee_r3*(ee_c3-ee_c2) - ee_r2*(ee_c2-ee_c1) - ee_r1*ee_c1)
+
+
+**IMPORTANT**Convert French datasets from net to gross
   replace pil=pil+pxiti+psscee
   gen_employer_ssc
   manual_corrections_employer_ssc
@@ -337,12 +340,14 @@ program define FR_tax_CSG_CRDS
     drop N C
     *Imputation
     gen pension_csg_crds = 0
-    replace pension_csg_crds = 0.043*(hitsil + hitsup) if hil > (6584+(familyshare - 1))*1759 & dname=="fr00" // 2002 figures deflated to 2000 prices using WDI CPI
-    replace pension_csg_crds = 0.067*(hitsil + hitsup) if hil > (7796+(familyshare - 1))*2120 & dname=="fr00" // 2002 figures deflated to 2000 prices using WDI CPI
-    replace pension_csg_crds = 0.043*(hitsil + hitsup) if hil > (7165+(familyshare - 1))*1914 & dname=="fr05"
-    replace pension_csg_crds = 0.071*(hitsil + hitsup) if hil > (8492+(familyshare - 1))*2308 & dname=="fr05"
-    replace pension_csg_crds = 0.043*(hitsil + hitsup) if hil > (9876+(familyshare - 1))*2637 & dname=="fr10"
-    replace pension_csg_crds = 0.071*(hitsil + hitsup) if hil > (11793+(familyshare - 1))*3178 & dname=="fr10"
+    gen hil_temp=hil-hxiti-hsscee /*On regarde bien le salaire net pour calculer le RFR*/
+    replace pension_csg_crds = 0.043/(1-0.043)*(hitsil + hitsup) if ((hil_temp/(1-0.024*0.97) + hitsil + hitsup)*0.9 + hic) > (6584+2*(familyshare - 1)*1759) & hxit<=0 & dname=="fr00" // 2002 figures deflated to 2000 prices using WDI CPI
+    replace pension_csg_crds = 0.067/(1-0.067)*(hitsil + hitsup) if ((hil_temp/(1-0.024*0.97) + hitsil + hitsup)*0.9 + hic) > (6584+2*(familyshare - 1)*1759) & hxit>0 & dname=="fr00" // 2002 figures deflated to 2000 prices using WDI CPI
+    replace pension_csg_crds = 0.043/(1-0.043)*(hitsil + hitsup) if ((hil_temp/(1-0.024*0.97) + hitsil + hitsup)*0.9 + hic) > (7165+2*(familyshare - 1)*1914) & hxit<=0 & dname=="fr05"
+    replace pension_csg_crds = 0.071/(1-0.071)*(hitsil + hitsup) if ((hil_temp/(1-0.024*0.97)+ hitsil + hitsup)*0.9 + hic) >  (7165+2*(familyshare - 1)*1914) & hxit>0 & dname=="fr05"
+    replace pension_csg_crds = 0.043/(1-0.043)*(hitsil + hitsup) if ((hil_temp/(1-0.024*0.97) + hitsil + hitsup)*0.9 + hic) > (9876+2*(familyshare - 1)*2637) & hxit<=0 & dname=="fr10"
+    replace pension_csg_crds = 0.071/(1-0.071)*(hitsil + hitsup) if ((hil_temp/(1-0.024*0.97) + hitsil + hitsup)*0.9 + hic) > (9876+2*(familyshare - 1)*2637) & hxit>0& dname=="fr10"
+    drop hil_temp
 end
 
 ***************************************************************
