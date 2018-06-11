@@ -411,7 +411,7 @@ foreach ccyy in $datasets {
     local `var'_mean = r(mean)
 	quietly sum `var' [w=hwgt*nhhmem] if hhactivage==1
     local hhaa_`var'_mean = r(mean)
-    foreach sortvar in inc1 inc2 inc3 inc4 {
+    foreach sortvar in inc1 inc2 inc3 inc4 inc5 inc6 {
       quietly capture sgini `var' [aw=hwgt*nhhmem], sortvar(`sortvar')
       local `var'conc_`sortvar' = r(coeff)
 	  quietly capture sgini `var' [aw=hwgt*nhhmem] if hhactivage==1, sortvar(`sortvar')
