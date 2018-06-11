@@ -161,8 +161,16 @@ end
 
 program define manual_corrections_employer_ssc
   * Manual corrections for certain datasets (Employer Social Security Contributions)
+  *Germany 2004 de04
+  replace psscer = 0.25*pil if pil<4800 & dname=="de04" | dname=="de07"
+  *Germany 2010 de10 (VA)
+  replace psscer = 0.30*pil if pil<4800 & dname=="de10" 
   *Estonia 2010 ee10
   replace psscer = psscer + 17832 if pil>0 & dname=="ee10"
+  *Hungary 2005 hu05
+  replace psscer = psscer + 3450*10 + 1950*2 if pil>0 & dname=="hu05"
+  *Hungary 2007 2009 hu07 hu09 
+  replace psscer = psscer + 1950*12 if pil>0 & dname=="hu07"|dname=="hu09"
   *Ireland 2000 ie00
   replace psscer=pil*.085 if  pil<14560 & dname=="ie00" // I could have easily included these changes for Ireland in the rates and ceilings.
   *Ireland 2004 ie04
@@ -173,11 +181,37 @@ program define manual_corrections_employer_ssc
   replace psscer=pil*.085 if  pil<18512 & dname=="ie10"
   *France 2000 fr00 (measured in Francs, not Euros)
   replace psscer=psscer-(0.182*pil) if pil<=83898 & dname=="fr00"
-  replace psscer=psscer-(0.55*(111584.34-pil)) if pil>83898 & pil<=111584.34 & dname=="fr00"
+  replace psscer=psscer-(0.55*(111584.34-pil)) if pil>83898 & pil<=111584.34 & dname=="fr00" 
   *France 2005 fr05
   replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" //I am not sure I have this adjustment correct.
   *France 2010 fr10
-  replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
++  *Mexico 2000 mx00
+  replace psscer=psscer + 0.152*35.12*365 if pil>0 & dname=="mx00"
+  replace psscer=psscer + 0.0502*(pil-3*35.12*365) if pil>3*35.12*365 & dname=="mx00"
+  *Mexico 2002 mx02
+  replace psscer=psscer + 0.165*39.74*365 if pil>0 & dname=="mx02"
+  replace psscer=psscer + 0.0404*(pil-3*39.74*365) if pil>3*39.74*365 & dname=="mx02"
+ *Mexico 2004 mx04
+  replace psscer=psscer + 0.178*45.24*365 if pil>0 & dname=="mx04"
+  replace psscer=psscer + 0.0306*(pil-3*45.24*365) if pil>3*45.24*365 & dname=="mx04"
+ *Mexico 2008 mx08
+  replace psscer=psscer + 0.204*52.59*365 if pil>0 & dname=="mx08"
+  replace psscer=psscer + 0.011*(pil-3*52.59*365) if pil>3*52.59*365 & dname=="mx08"
+ *Mexico 2010 mx10
+  replace psscer=psscer + 0.204*57.46*365 if pil>0 & dname=="mx10"
+  replace psscer=psscer + 0.011*(pil-3*57.46*365) if pil>3*57.46*365 & pil<25*57.46*365 & dname=="mx10"
+  replace psscer=psscer + 0.011*((25-3)*57.46*365)	 if pil>25*57.46*365 & dname=="mx10"
+ *Mexico 2012 mx12 VA
+  replace psscer=psscer + 0.204*62.33*365 if pil>0 & dname=="mx10"
+  replace psscer=psscer + 0.011*(pil-3*62.33*365) if pil>3*62.33*365 & pil<25*62.33*365 & dname=="mx10"
+  replace psscer=psscer + 0.011*((25-3)*62.33*365)	 if pil>25*62.33*365 & dname=="mx10"
+
+  *Netherlands 1999 nl99
+  replace psscer=psscer + 0.0585*pil  if pil>0 & pil<54810 & dname=="nl99"
+  replace psscer=psscer + 0.0585*54810  if pil>0 & pil<64300 & dname=="nl99"
+  *Netherlands 2004 nl04
+  replace psscer=psscer + 0.0675*pil  if pil>0 & pil<29493 & dname=="nl04"
+  replace psscer=psscer + 0.0675*29493  if pil>0 & pil<32600 & dname=="nl04"
 end
 
 ***************************************************************************
