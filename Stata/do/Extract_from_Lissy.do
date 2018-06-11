@@ -214,17 +214,20 @@ program define inc_and_decile
   gen inc2 = marketincome + allpension
   gen inc3 = marketincome + allpension + transfer
   gen inc4 = marketincome + allpension + transfer - tax
-
+  gen inc5 = marketincome + allpension + transfer - hsscer /*Gross wage in the French sense (net of employer's contribution)*/
+  gen inc6 = marketincome + allpension + transfer - hsscer - hxits  /*Net wage in the French sense (net of all contributions but gross of PIT*/
+  
   * Trim and bottom code
   // The preceding steps are in the ppp_equiv program
   * Step 3
   foreach var in $hvarsflow $hvarsnew {
   replace `var' = 0 if `var' < 0
   }
-  * Define the income deciles
-  xtile decile = inc2 [w=hwgt*nhhmem], nquantiles(10) // already corrected for household size by ppp_equiv
-  xtile hhaa_decile = inc2 [w=hwgt*nhhmem] if hhactivage==1, nquantiles(10) // already corrected for household size by ppp_equiv
-
+  * Define the income deciles - Define various deciles for various concepts of income
+  forvalues i = 1/6{
+  xtile decile_`i' = inc`i' [w=hwgt*nhhmem], nquantiles(10) // already corrected for household size by ppp_equiv
+  xtile hhaa_decile_`i' = inc`i' [w=hwgt*nhhmem] if hhactivage==1, nquantiles(10) // already corrected for household size by ppp_equiv
+}
 end
 
 **************************************************
@@ -269,7 +272,7 @@ transfers in Sweden and Norway. The following code adjusts the definitions of
 the income variables for use in Sweden and Norway */
 
 program define fix_pensions_type1
-  drop pubpension transfer inc1 inc2 inc3 inc4 decile hhaa_decile
+  drop pubpension transfer inc1 inc2 inc3 inc4 inc5 inc6 decile_1 decile_2 decile_3 decile_4 decile_5 decile_6 hhaa_decile_1 hhaa_decile_2 hhaa_decile_3 hhaa_decile_4 hhaa_decile_5 hhaa_decile_6
   gen pubpension = pension - hicvip - hitsap
   *gen pripension = hicvip // No change
   *gen allpension = pension - hitsap // No change
@@ -291,7 +294,7 @@ pensions, a subcategory of assistance benefits) out of transfers, and into
 pensions.  */
 
 program define fix_pensions_type3
-  drop pubpension allpension transfer inc1 inc2 inc3 inc4 decile hhaa_decile
+  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc5 inc6 decile_1 decile_2 decile_3 decile_4 decile_5 decile_6 hhaa_decile_1 hhaa_decile_2 hhaa_decile_3 hhaa_decile_4 hhaa_decile_5 hhaa_decile_6
   gen pubpension = hitsil + hitsup + hitsap // Added "+hitsap"
   *gen pripension = hicvip // No change
   gen allpension = pension // Removed "-hitsap"
@@ -308,7 +311,7 @@ end
 ***************************************************************************
 
 program define FR_def_tax_and_transfer
-  drop tax inc1 inc2 inc3 inc4 decile hhaa_decile marketincome
+  drop tax inc1 inc2 inc3 inc4 inc5 inc6 decile_1 decile_2 decile_3 decile_4 decile_5 decile_6 hhaa_decile_1 hhaa_decile_2 hhaa_decile_3 hhaa_decile_4 hhaa_decile_5 hhaa_decile_6 marketincome
   * Impute the taxes CSG and CRDS
   FR_tax_CSG_CRDS
   * Define the components of the income stages
