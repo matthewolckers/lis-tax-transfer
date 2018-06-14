@@ -189,7 +189,8 @@ program define manual_corrections_employer_ssc
   *France 2005 fr05
   replace psscer=psscer-((0.26/0.6)*((24692.8/pil)-1)*pil) if pil>15433 & pil<24692.8 & dname=="fr05" //I am not sure I have this adjustment correct.
   *France 2010 fr10
-+  *Mexico 2000 mx00
+  replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
+ *Mexico 2000 mx00
   replace psscer=psscer + 0.152*35.12*365 if pil>0 & dname=="mx00"
   replace psscer=psscer + 0.0502*(pil-3*35.12*365) if pil>3*35.12*365 & dname=="mx00"
   *Mexico 2002 mx02
