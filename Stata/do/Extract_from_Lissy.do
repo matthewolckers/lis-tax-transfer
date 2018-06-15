@@ -14,7 +14,7 @@ global hvarsflow "hil hic pension hits hitsil hitsup hitsap hxit hxiti hxits hc 
 
 global hvarsnew "hsscer hsscee" // Local currency, imputed
 
-global hvarsinc "inc1 inc2 inc3 inc4 tax transfer allpension pubpension pripension hssc" // Summation / imputed after PPP conversion
+global hvarsinc "inc1 inc2 inc3 inc3_SSER inc3_SSEE inc4 tax transfer allpension pubpension pripension hssc" // Summation / imputed after PPP conversion
 
 global incconcept "inc1 inc2 inc3 inc3_SSER inc3_SSEE inc4" /*Concept of income: for the loops*/
 
