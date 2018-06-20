@@ -166,7 +166,8 @@ end
 program define manual_corrections_employer_ssc
   * Manual corrections for certain datasets (Employer Social Security Contributions)
   *Germany 2004 de04
-  replace psscer = 0.25*pil if pil<4800 & dname=="de04" | dname=="de07"
+  replace psscer = 0.25*pil if pil<4800 & dname=="de04"
+  replace psscer = 0.25*pil if pil<4800 & dname=="de07"
   *Germany 2010 de10 (VA)
   replace psscer = 0.30*pil if pil<4800 & dname=="de10" 
   *Estonia 2010 ee10
@@ -174,7 +175,8 @@ program define manual_corrections_employer_ssc
   *Hungary 2005 hu05
   replace psscer = psscer + 3450*10 + 1950*2 if pil>0 & dname=="hu05"
   *Hungary 2007 2009 hu07 hu09 
-  replace psscer = psscer + 1950*12 if pil>0 & dname=="hu07"|dname=="hu09"
+  replace psscer = psscer + 1950*12 if pil>0 & dname=="hu07"
+  replace psscer = psscer + 1950*12 if pil>0 & dname=="hu09"
   *Ireland 2000 ie00
   replace psscer=pil*.085 if  pil<14560 & dname=="ie00" // I could have easily included these changes for Ireland in the rates and ceilings.
   *Ireland 2004 ie04
