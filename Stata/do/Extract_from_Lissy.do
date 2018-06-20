@@ -298,6 +298,9 @@ program define def_tax_and_transfer
   gen tax = hxit + hsscer
   gen hssc = hxits + hsscer
   gen marketincome = hil + (hic-hicvip) + hsscer
+  * Italy is reported net of both SSC contributions and income tax while the gross datasets 
+  * are net of employer contributions but gross of employee SSC and income tax.
+  replace marketincome = hil + (hic-hicvip) + tax if dname=="it04" | dname=="it08" | dname=="it10"
 
   inc_and_decile
 
