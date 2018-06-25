@@ -18,7 +18,7 @@ global hvarsinc "inc1 inc2 inc3 inc3_SSER inc3_SSEE inc4 tax transfer allpension
 
 global incconcept "inc1 inc2 inc3 inc3_SSER inc3_SSEE inc4" /*Concept of income: for the loops*/
 
-global fixpension_datasets3 "ie04 ie07 ie10 uk99 uk04 uk07 uk10"
+global fixpension_datasets3 "ie04 ie07 ie10 uk99 uk04 uk07 uk10 uk13"
 
 *************************************************************
 * Program: Generate SSC variables from person level dataset
