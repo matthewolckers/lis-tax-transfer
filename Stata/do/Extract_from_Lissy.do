@@ -277,7 +277,7 @@ end
 
 program define ppp_equiv
   * Define PPP conversions to 2011 international dollars (ppp)
-  merge m:1 dname using "$mydata/vamour/ppp_20180621.dta", keep(match) nogenerate
+  merge m:1 dname using "$mydata/vamour/ppp_20180622.dta", keep(match) nogenerate
 
   * Complete the PPP conversions and equivalence scales with replace commands
   foreach var in $hvarsflow $hvarsnew {
