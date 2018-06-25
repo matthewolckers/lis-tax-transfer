@@ -359,7 +359,7 @@ program define def_tax_and_transfer
   
   * Italy is reported net of both SSC contributions and income tax while the gross datasets 
   * are net of employer contributions but gross of employee SSC and income tax.
-  replace marketincome = hil + (hic-hicvip) + tax if dname=="it04" | dname=="it08" | dname=="it10"
+  replace marketincome = hil + (hic-hicvip) + tax if dname=="it04" | dname=="it08" | dname=="it10" | dname=="it14"
 
   inc_and_decile
 
@@ -471,7 +471,7 @@ foreach ccyy in $datasets {
   else {
     quietly gen_pvars
   }
-  quietly merge 1:1 hid using $`ccyy'h, keepusing($hvars $hvarsflow) nogenerate
+  quietly merge 1:1 hid using $`ccyy'h,  nogenerate // keepusing($hvars $hvarsflow)
   quietly missing_values
   if "`cc'" == "fr" {
     quietly correct_dhi
