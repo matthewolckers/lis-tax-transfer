@@ -149,7 +149,7 @@ program define IT_gen_pvars
   merge_ssc
   **IMPORTANT**Convert Italian datasets from net to gross
   replace pil=pil+pxit
-  gen psscee=. // hxits is defined for italy, so no need to impute
+  gen_employee_ssc 
   gen_employer_ssc
   convert_ssc_to_household_level
 end
@@ -351,6 +351,7 @@ program define def_tax_and_transfer
   *Finally define PIT and social security contribution. Rather use hxit in the income definitions
    * Use the imputed data if employee social security contributions is not available
   replace hxits=hsscee if hxits==.
+  replace hxiti=hxit - hxits if hxiti==.
   replace hxit = hxiti + hxits if hxit==.
 
   gen tax = hxit + hsscer
