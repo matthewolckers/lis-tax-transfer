@@ -482,9 +482,6 @@ foreach ccyy in $datasets {
   if "`cc'" == "fr" {
     quietly FR_def_tax_and_transfer
   }
-  foreach certain_ccyy in $fixpensions_datasets1 {
-    quietly fix_pensions_type1 if "`ccyy'" == "`certain_ccyy'"
-  }
   foreach certain_ccyy in $fixpensions_datasets3 {
     quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
   }
