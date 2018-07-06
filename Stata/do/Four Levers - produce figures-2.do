@@ -577,3 +577,365 @@ label var r2to5bis "Total effect"
 twoway (bar r2to4bis index, barw(0.65)) (bar r3to4bis index, barw(0.65))  (bar r4to5bis index, barw(0.65))(scatter r2to5bis index ) if zone==1 & r2to5!=., xlabel(#20 ,valuelabel  angle(forty_five) labsize(small)) ytitle("Effective redistribution") xtitle("Country-Year") legend(ring(0) position(10)  region(fcolor(none)))
 graph export "figure4PB-english.pdf", replace
 
+
+*/
+*******************Appendix with and without imputations**************
+
+clear
+*cd  "/home/m.olckers/U/LIS Four Levers/"
+
+cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
+use "NI_LIS et OECD.dta", clear
+
+*****************************************
+* Labels
+*****************************************
+
+tostring year , gen(year_str)
+gen countryyear_full = country + " " + year_str
+drop year_str
+gen countryyear_upper = upper(countryyear)
+
+
+****************************************
+/*definition des variables*/
+****************************************
+
+*indices de niveau sur donnÃ©es LIS  exprimÃ©s en "share" (% au concept de revenu prÃ©cÃ©dent) et en niveau (% du revenu disponible inc_4)
+
+gen transshare=transfer_mean/inc2_mean
+gen transLvL=transfer_mean/inc4_mean
+gen taxshare=tax_mean/inc3_mean
+gen taxLvL=tax_mean/inc4_mean
+gen pubpensionshare=pubpension_mean/inc1_mean
+gen pubpensionLvL=pubpension_mean/inc4_mean
+gen totalbenefit_mean=transfer_mean+pubpension_mean
+gen totalbenefitshare=transfer_mean+pubpension_mean/inc2_mean
+gen totalbenefitLvL=transLvL+pubpensionLvL
+gen pubpensionrate= pubpension_mean/inc1_mean
+
+***hhaa version***
+gen hhaa_taxshare=hhaa_tax_mean/hhaa_inc3_mean
+gen hhaa_transshare=hhaa_transfer_mean/hhaa_inc2_mean
+
+
+gen SSCshare=hssc_mean/inc3_mean
+gen SSCLvL=hssc_mean/inc4_mean
+gen SSCershare=hsscer_mean/inc3_mean
+gen SSCerLvL=hsscer_mean/inc4_mean
+gen SSCeeshare=hxits_mean/inc3_mean
+gen SSCeeLvL=hxits_mean/inc4_mean
+
+
+/*variable Kakwani pour les cotisations sociales*/
+
+gen SSC_kakwani=hsscconc_inc3-inc3_gini
+replace SSC_kakwani=0 if SSCshare==0
+gen SSCer_kakwani=hsscerconc_inc3-inc3_gini
+replace SSCer_kakwani=0 if SSCershare==0
+gen SSCee_kakwani=hxitsconc_inc3-inc3_gini
+gen kakwani_pension= pubpension_conc_inc2-inc2_gini
+
+gen tax_kakwani = tax_conc_inc3 - inc3_gini
+gen transfer_kakwani = transfer_conc_inc2 - inc2_gini
+
+gen hhaa_tax_kakwani = hhaa_tax_conc_inc3 - hhaa_inc3_gini
+gen hhaa_transfer_kakwani = hhaa_transfer_conc_inc2 - hhaa_inc2_gini
+
+/*Reduction gini (indice de Reynold-Smolensky)*/
+gen r2to4=inc2_gini-inc4_gini
+gen r3to4=inc3_gini-inc4_gini
+gen r2to3=inc2_gini-inc3_gini
+
+
+/*Reduction gini (indice de Reynold-Smolensky) version hhaa*/
+gen hhaa_r2to4=hhaa_inc2_gini-hhaa_inc4_gini
+gen hhaa_r3to4=hhaa_inc3_gini-hhaa_inc4_gini
+gen hhaa_r2to3=hhaa_inc2_gini-hhaa_inc3_gini
+
+/*calcul du reranking*/
+
+gen Rerank2=inc2_conc_inc2-inc2_conc_inc1
+gen Rerank3=inc3_conc_inc3-inc3_conc_inc2
+gen Rerank4=inc4_conc_inc4-inc4_conc_inc3
+
+/*Calcul de la redistribution verticale (directement Ã  partir du Reynold Smolenski, et indirectement Ã  partir du Kakwani*/
+
+gen Ve23=r2to3+Rerank3
+gen Ve34=r3to4+Rerank4
+
+
+gen VeSSC=(SSCshare/(1-SSCshare))*SSC_kakwani
+gen VeSSCer=(SSCershare/(1-SSCershare))*SSCer_kakwani
+gen VeSSCee=(SSCeeshare/(1-SSCeeshare))*SSCee_kakwani
+
+gen Vepension= -pubpensionrate/(1+pubpensionrate)*kakwani_pension
+
+gen Ve23verif=-transshare/(1+transshare)*transfer_kakwani
+gen Ve34verif=taxshare/(1-taxshare)*tax_kakwani
+
+/*autres variables d'indicateurs issues de l'OCDE*/
+
+gen sscem2=sscem /*save OECD employer contrib in a sscem2 variable*/
+replace sscem=sscem+payroll  /*add payroll to sscem OECD variable*/
+replace ssc=ssc+payroll
+gen bismindx=(ssc)/totalexp
+gen kindshare=totalkind/totalexp
+gen taxOECD=ssc+tax1100
+gen sharetax=(taxOECD)/totaltax
+gen sharetax2=sharetax+tax5100/totaltax
+gen LisorigOECD=sscee+tax1100
+gen Lisorig=(sscee+tax1100)/totaltax
+
+gen sum=sscee+sscem
+
+label var Lisorig "Perimetre LIS: IR + cotis. employees"
+label var sharetax "IR + cotis. employÃ©s et employeur"
+label var sharetax2 "IR + cotis. employÃ©s et employeur+ TVA & taxes sur la conso"
+label var taxshare "Tax rate"
+label var transshare "Transfer rate"
+label var r3to4 "Gini [Gross Income]- Gini [Disp Income]"
+label var r2to3 "Gini [Market income] - Gini [Gross Income]"
+
+drop totaltax tax1000 tax1100 tax1200 payroll tax5000 tax5100 tax5110 tax5111 totalexpphppp totalcashphppp ///
+totalkindphppp totalexp totalcash totalkind totalexpgg gdp_exp pop cp_nationalcurrency disp_hhplus_nationalcurrency ///
+disp_nationalcurrency ghdi_by_gdp apc_oecd itrc_1 itrc_2 itrc_3 _merge EPL _merge2 taxOECD sharetax sharetax2 LisorigOECD
+
+foreach var of varlist * {
+
+rename `var' NI_`var'
+    }
+rename NI_countryyear countryyear
+
+drop if NI_inc2_gini==.
+sort countryyear
+
+save "Without imputations.dta", replace
+
+use "LIS et OECD.dta", clear
+drop _merge
+drop if inc2_gini==.
+sort countryyear
+save "With imputations.dta", replace
+
+merge 1:1 countryyear using "Without imputations.dta"
+
+save "With and without imputations.dta", replace
+
+* Set scheme and save figures in a folder with the scheme name
+set scheme plotplain, perm
+cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
+
+*****************************************
+* Labels
+*****************************************
+
+tostring year , gen(year_str)
+gen countryyear_full = country + " " + year_str
+drop year_str
+gen countryyear_upper = upper(countryyear)
+
+
+****************************************
+/*definition des variables*/
+****************************************
+
+*indices de niveau sur donnÃ©es LIS  exprimÃ©s en "share" (% au concept de revenu prÃ©cÃ©dent) et en niveau (% du revenu disponible inc_4)
+
+gen transshare=transfer_mean/inc2_mean
+gen transLvL=transfer_mean/inc4_mean
+gen taxshare=tax_mean/inc3_mean
+gen taxLvL=tax_mean/inc4_mean
+gen pubpensionshare=pubpension_mean/inc1_mean
+gen pubpensionLvL=pubpension_mean/inc4_mean
+gen totalbenefit_mean=transfer_mean+pubpension_mean
+gen totalbenefitshare=transfer_mean+pubpension_mean/inc2_mean
+gen totalbenefitLvL=transLvL+pubpensionLvL
+gen pubpensionrate= pubpension_mean/inc1_mean
+
+***hhaa version***
+gen hhaa_taxshare=hhaa_tax_mean/hhaa_inc3_mean
+gen hhaa_transshare=hhaa_transfer_mean/hhaa_inc2_mean
+
+
+gen SSCshare=hssc_mean/inc3_mean
+gen SSCLvL=hssc_mean/inc4_mean
+gen SSCershare=hsscer_mean/inc3_mean
+gen SSCerLvL=hsscer_mean/inc4_mean
+gen SSCeeshare=hxits_mean/inc3_mean
+gen SSCeeLvL=hxits_mean/inc4_mean
+
+
+/*variable Kakwani pour les cotisations sociales*/
+
+gen SSC_kakwani=hsscconc_inc3-inc3_gini
+replace SSC_kakwani=0 if SSCshare==0
+gen SSCer_kakwani=hsscerconc_inc3-inc3_gini
+replace SSCer_kakwani=0 if SSCershare==0
+gen SSCee_kakwani=hxitsconc_inc3-inc3_gini
+gen kakwani_pension= pubpension_conc_inc2-inc2_gini
+
+gen tax_kakwani = tax_conc_inc3 - inc3_gini
+gen transfer_kakwani = transfer_conc_inc2 - inc2_gini
+
+gen hhaa_tax_kakwani = hhaa_tax_conc_inc3 - hhaa_inc3_gini
+gen hhaa_transfer_kakwani = hhaa_transfer_conc_inc2 - hhaa_inc2_gini
+
+/*Reduction gini (indice de Reynold-Smolensky)*/
+gen r2to4=inc2_gini-inc4_gini
+gen r3to4=inc3_gini-inc4_gini
+gen r2to3=inc2_gini-inc3_gini
+
+
+/*Reduction gini (indice de Reynold-Smolensky) version hhaa*/
+gen hhaa_r2to4=hhaa_inc2_gini-hhaa_inc4_gini
+gen hhaa_r3to4=hhaa_inc3_gini-hhaa_inc4_gini
+gen hhaa_r2to3=hhaa_inc2_gini-hhaa_inc3_gini
+
+/*calcul du reranking*/
+
+gen Rerank2=inc2_conc_inc2-inc2_conc_inc1
+gen Rerank3=inc3_conc_inc3-inc3_conc_inc2
+gen Rerank4=inc4_conc_inc4-inc4_conc_inc3
+
+/*Calcul de la redistribution verticale (directement Ã  partir du Reynold Smolenski, et indirectement Ã  partir du Kakwani*/
+
+gen Ve23=r2to3+Rerank3
+gen Ve34=r3to4+Rerank4
+
+
+gen VeSSC=(SSCshare/(1-SSCshare))*SSC_kakwani
+gen VeSSCer=(SSCershare/(1-SSCershare))*SSCer_kakwani
+gen VeSSCee=(SSCeeshare/(1-SSCeeshare))*SSCee_kakwani
+
+gen Vepension= -pubpensionrate/(1+pubpensionrate)*kakwani_pension
+
+gen Ve23verif=-transshare/(1+transshare)*transfer_kakwani
+gen Ve34verif=taxshare/(1-taxshare)*tax_kakwani
+
+/*autres variables d'indicateurs issues de l'OCDE*/
+
+gen sscem2=sscem /*save OECD employer contrib in a sscem2 variable*/
+replace sscem=sscem+payroll  /*add payroll to sscem OECD variable*/
+replace ssc=ssc+payroll
+gen bismindx=(ssc)/totalexp
+gen kindshare=totalkind/totalexp
+gen taxOECD=ssc+tax1100
+gen sharetax=(taxOECD)/totaltax
+gen sharetax2=sharetax+tax5100/totaltax
+gen LisorigOECD=sscee+tax1100
+gen Lisorig=(sscee+tax1100)/totaltax
+
+gen sum=sscee+sscem
+
+label var Lisorig "Perimetre LIS: IR + cotis. employees"
+label var sharetax "IR + cotis. employÃ©s et employeur"
+label var sharetax2 "IR + cotis. employÃ©s et employeur+ TVA & taxes sur la conso"
+label var taxshare "Tax rate"
+label var transshare "Transfer rate"
+label var r3to4 "Gini [Gross Income]- Gini [Disp Income]"
+label var r2to3 "Gini [Market income] - Gini [Gross Income]"
+
+
+****************************************************************
+*Nettoyage des donnÃ©es et crÃ©ation d'une zone (1 point par pays)
+****************************************************************
+
+
+
+
+drop if inc2_gini==.
+*drop if datatype=="Net"
+global net_datasets "at00 be00 gr00 hu05 hu07 hu09 hu12 hu99 ie00 it00 lu00 mx00 mx02 mx04 mx08 mx10 mx12 mx98 si10" 
+
+foreach ccyy in $net_datasets {
+drop if countryyear=="`ccyy'"
+}
+
+drop if ccode=="kr"|countryyear=="jp08" |country=="Poland"|country=="Switzerland"/*|country=="Switzerland"Japon: problÃ¨me sur les taxes qui apparaÃ®t lorsqu'on compare Ve34 et Ve34 verif; pologne aussi*/
+**création d'une zone sur la dernière année disponible
+gen zone=.
+
+
+bys ccode: egen ymax=max(year)
+replace ymax=0 if ymax>year
+replace ymax=1 if ymax==year
+
+replace zone=0
+replace zone=1 if ymax==1
+replace zone=0 if countryyear=="ie10"
+replace zone=1 if countryyear=="ie07"
+
+sort r2to4
+*encode country if zone==1 & constax_kakwani!=., gen(ccode)
+
+gen ccodeshort=substr(countryyear, 1, 2)
+
+
+
+
+
+
+************************************** Figures********************************
+*************************************
+* Figure A3
+*************************************
+gen position_figA3 = 9
+replace position_figA3 = 10 if country=="Austria"
+replace position_figA3 = 12 if country=="Germany"
+replace position_figA3 = 6 if country=="Denmark"
+replace position_figA3 = 6 if country=="Italy"
+replace position_figA3 = 10 if country=="Greece"
+replace position_figA3 = 10 if country=="United States"
+replace position_figA3 = 10 if country=="Estonia"
+
+
+twoway ///
+(scatter NI_tax_kakwani NI_taxshare, msymbol(Oh) mcolor(gs10) ) ///
+(scatter tax_kakwani taxshare, msymbol(X) mcolor(gs10) ) ///
+(pcspike tax_kakwani taxshare NI_tax_kakwani NI_taxshare , lpattern(dash) lcolor(gs12) ) ///
+(scatter NI_tax_kakwani NI_taxshare, mlabel(country) msymbol(none) mlabvpos(position_figA3) ) ///
+if zone==1 ///
+, ytitle("Tax progressivity") xtitle("Tax rate") ///
+legend(order(1 "Before imputation" 2 "After imputation") ring(0) position(2) bmargin(large))
+
+drop position_figA3
+
+graph export "figureA3.pdf", replace
+
+
+*************************************
+* Figure A3
+*************************************
+
+gen position_figA4 = 9
+replace position_figA4 = 12 if country=="United Kingdom"
+replace position_figA4 = 12 if country=="Iceland"
+replace position_figA4 = 7 if country=="Netherlands"
+replace position_figA4 = 12 if country=="Finland"
+replace position_figA4 = 6 if country=="Estonia"
+replace position_figA4 = 11 if country=="Israel"
+replace position_figA4 = 11 if country=="Luxembourg"
+replace position_figA4 = 3 if country=="Czech Republic"
+replace position_figA4 = 3 if country=="Slovak Republic"
+replace position_figA4 = 10 if country=="Australia"
+
+
+gen label_dummy_A4 = 0
+replace label_dummy_A4 = 1 if country=="Czech Republic"
+replace label_dummy_A4 = 1 if country=="Slovak Republic"
+
+twoway ///
+(function y=x, range(0 .1) lcolor(gs12) lpattern(solid)) ///
+(scatter NI_r2to3 NI_r3to4 , msymbol(Oh) mcolor(gs10) ) ///
+(scatter r2to3 r3to4 , msymbol(X) mcolor(gs10) ) ///
+(pcspike r2to3 r3to4 NI_r2to3 NI_r3to4  , lpattern(dash) lcolor(gs12) ) ///
+(scatter NI_r2to3 NI_r3to4 if label_dummy_A4 == 0, mlabel(country) msymbol(none) mlabvpos(position_figA4) ) ///
+(scatter r2to3 r3to4 if label_dummy_A4 == 1, mlabel(country) msymbol(none) mlabvpos(position_figA4) ) ///
+if zone==1 ///
+, ytitle(Transfer inequality reduction) xtitle(Tax inequality reduction)  ///
+legend(order(2 "Before imputation" 3 "After imputation") ring(0) position(3) bmargin(large)) ///
+xscale(range(0 .105))
+
+drop position_figA4 label_dummy_A4
+graph export "figureA4.pdf", replace
