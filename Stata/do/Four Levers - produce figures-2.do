@@ -1,12 +1,13 @@
 clear
-*cd  "/home/m.olckers/U/LIS Four Levers/"
 
-cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
+*cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
+cd "/Users/matthewolckers/repos/lis-tax-transfer"
 use "LIS et OECD.dta", clear
 
 * Set scheme and save figures in a folder with the scheme name
 set scheme plotplain, perm
-cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
+*cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
+cd "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
 
 *****************************************
 * Labels
@@ -205,40 +206,44 @@ gen label_fig5 = country /*+ " [" + string_r2to4 + "]"*/
 
 * Generate a position variable so the mlabels do not overlap
 gen position_fig5 = 3
-replace position_fig5 = 9 if country=="Norway"
-replace position_fig5 = 10 if country=="Luxembourg"
-replace position_fig5 = 8 if country=="Spain"
-replace position_fig5 = 11 if country=="Czech Republic"
+replace position_fig5 = 4 if country=="Norway"
+replace position_fig5 = 9 if country=="Luxembourg"
+replace position_fig5 = 9 if country=="Spain"
 replace position_fig5 = 2 if country=="Netherlands"
-replace position_fig5 = 6 if country=="Iceland"
+replace position_fig5 = 12 if country=="Iceland"
 replace position_fig5 = 6 if country=="Greece"
+replace position_fig5 = 6 if country=="Estonia"
+replace position_fig5 = 8 if country=="Slovak Republic"
+replace position_fig5 = 10 if country=="United States"
+replace position_fig5 = 6 if country=="Israel"
+replace position_fig5 = 10 if country=="Canada"
+replace position_fig5 = 2 if country=="Austria"
 
 
-recode r2to4 (0 / 0.049 = 1)  (0.05 / .081 = 2) ( .082 / .13 = 3) (0.131 / 0.3 = 4) , gen(redis_categories)
+recode r2to4 (0 / 0.049 = 1)  (0.05 / .081 = 2) ( .082 / .13 = 3) (0.131 / 0.2 = 4) , gen(redis_categories)
 
 
 /*Figure 5 role respectif */
 twoway (function y=x, range(0 .1) lcolor(gs12) lpattern(solid)) ///
-(scatter  r2to3 r3to4 if redis_categories==1 , msymbol(th) msize(medsmall) mcolor(gs8) ) ///
 (scatter  r2to3 r3to4 if redis_categories==2 , msymbol(oh) msize(medsmall) mcolor(gs6) ) ///
 (scatter  r2to3 r3to4 if redis_categories==3 , msymbol(oh) msize(large) mcolor(gs4) ) ///
 (scatter  r2to3 r3to4 if redis_categories==4 , msymbol(th) msize(large) mcolor(gs8) ) ///
-(scatter  r2to3 r3to4 if redis_categories==1 , mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs8)) ///
 (scatter  r2to3 r3to4 if redis_categories==2 , mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs6)) ///
 (scatter  r2to3 r3to4 if redis_categories==3 , mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs4) ) ///
 (scatter  r2to3 r3to4 if redis_categories==4, mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs8)) ///
 if zone==1, ///
 ytitle(Transfer inequality reduction) xtitle(Tax inequality reduction) ///
-legend(order(3 "Low reduction cluster" 4 "High reduction cluster" 2 "Low reduction outlier" 5 "High reduction outlier") ring(0) position(10) bmargin(large)) ///
+legend(order(2 "Low reduction cluster" 3 "High reduction cluster" 4 "High reduction outlier") ring(0) position(10) bmargin(large)) ///
 xscale(range(0 .105))
 
-drop position_fig5 redis_categories string_r2to4 label_fig5
+drop position_fig5 string_r2to4 redis_categories label_fig5
 
 graph export "figure5.pdf", replace
 
-
-
-
+// In the 2013-2016 data there are no "low reduction outliers"
+*(scatter  r2to3 r3to4 if redis_categories==1 , msymbol(th) msize(medsmall) mcolor(gs8) ) ///
+*(scatter  r2to3 r3to4 if redis_categories==1 , mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs8)) ///
+* legend(order(3 "Low reduction cluster" 4 "High reduction cluster" 2 "Low reduction outlier" 5 "High reduction outlier") ring(0) position(10) bmargin(large)) ///
 
 
 **********************************************************************************
@@ -268,25 +273,50 @@ Transfers are more complicated because the transfer Kakwani is negative.
 
 * Generate a position variable so the mlabels do not overlap
 gen position_fig6 = 3
+
+replace position_fig6 = 12 if country=="Australia"
+replace position_fig6 = 8 if country=="Austria"
 replace position_fig6 = 2 if country=="Canada"
-replace position_fig6 = 2 if country=="Spain"
-replace position_fig6 = 4 if country=="Norway"
+replace position_fig6 = 10 if country=="Czech Republic"
+replace position_fig6 = 8 if country=="Germany"
+replace position_fig6 = 8 if country=="Greece"
+replace position_fig6 = 9 if country=="Iceland"
+replace position_fig6 = 12 if country=="Ireland"
+replace position_fig6 = 9 if country=="Israel"
+replace position_fig6 = 9 if country=="Italy"
+replace position_fig6 = 6 if country=="Norway"
+replace position_fig6 = 11 if country=="Netherlands"
+replace position_fig6 = 8 if country=="Slovak Republic"
+replace position_fig6 = 3 if country=="Spain"
+replace position_fig6 = 12 if country=="United States"
+
+
 
 
 * Normal version: line thickness is constant
 twoway ///
-(function y=-(1+x)/x*.01 ,  range(.00662 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.03 ,  range(.01961 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.05 ,  range(.03226 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.07 ,  range(.04459 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.09 ,  range(.05660 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(scatter transfer_kakwani transshare if zone==1, mlabel(country) msymbol(oh) mlabvpos(position_fig6)) ///
+(function y=-(1+x)/x*.01 ,  range(.00671 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.03 ,  range(.02041 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.05 ,  range(.03448 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.07 ,  range(.04895 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.09 ,  range(.06383 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.11 ,  range(.07914 .15) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(scatter transfer_kakwani transshare if zone==1, mlabel(country) msymbol(o) mlabvpos(position_fig6) mcolor(gs4)) ///
 ,yscale(reverse) xscale(range(0 .12))  ///
+text(-0.076 0.15 ".01", place(e) size(vsmall) color(gs8)) ///
+text(-0.23 0.15 ".03", place(e) size(vsmall) color(gs8)) ///
+text(-0.383 0.15 ".05", place(e) size(vsmall) color(gs8)) ///
+text(-0.536 0.15 ".07", place(e) size(vsmall) color(gs8)) ///
+text(-0.69 0.15 ".09", place(e) size(vsmall) color(gs8)) ///
+text(-0.843 0.15 ".11", place(e) size(vsmall) color(gs8)) ///
 legend(off) xtitle("Transfer rate") ytitle("Transfer targeting")
 
 drop position_fig6
 
 graph export "figure6.pdf", replace
+
+// To add arrows:
+* (pcarrowi -1.51 0.02 -1.51 0.04, color(gs8) ) ///
  
 /* Figure 6bis Regression niveau des transferts et transferts*/
 
@@ -300,7 +330,7 @@ replace position_fig6bis = 2 if country=="Italy"
 replace position_fig6bis = 4 if country=="Greece"
 replace position_fig6bis = 9 if country=="Canada"
  
-twoway (scatter r2to3 transshare if zone==1 , mlabel(country) msymbol(oh) mlabvpos(position_fig6bis)) ///
+twoway (scatter r2to3 transshare if zone==1 , mlabel(country) msymbol(o) mlabvpos(position_fig6bis)) ///
 || lfit r2to3 transshare , range(0 .15) legend(off) ///
 ytitle(Inequality reduction due to transfers)
 
@@ -312,9 +342,23 @@ graph export "figure6bis.pdf", replace
 
 * Generate a position variable so the mlabels do not overlap
 gen position_fig7 = 3
-replace position_fig7 = 2 if country=="France"
-replace position_fig7 = 4 if country=="Germany"
-replace position_fig7 = 6 if country=="Spain"
+replace position_fig7 = 9 if country=="Australia"
+replace position_fig7 = 3 if country=="Austria"
+replace position_fig7 = 9 if country=="Canada"
+replace position_fig7 = 3 if country=="Czech Republic"
+replace position_fig7 = 10 if country=="Estonia"
+replace position_fig7 = 3 if country=="Germany"
+replace position_fig7 = 3 if country=="Greece"
+replace position_fig7 = 3 if country=="Iceland"
+replace position_fig7 = 3 if country=="Ireland"
+replace position_fig7 = 9 if country=="Israel"
+replace position_fig7 = 3 if country=="Italy"
+replace position_fig7 = 8 if country=="Luxembourg"
+replace position_fig7 = 12 if country=="Norway"
+replace position_fig7 = 8 if country=="Netherlands"
+replace position_fig7 = 8 if country=="Slovak Republic"
+replace position_fig7 = 12 if country=="Spain"
+replace position_fig7 = 9 if country=="United States"
 
  twoway ///
 (function y=(1-x)/x*.02 ,  range(.07407 .499) n(1000) lcolor(gs12) lpattern(solid) ) ///
@@ -323,8 +367,14 @@ replace position_fig7 = 6 if country=="Spain"
 (function y=(1-x)/x*.08 ,  range(.24242 .499) n(1000) lcolor(gs12) lpattern(solid) ) ///
 (function y=(1-x)/x*.10 ,  range(.28571 .499) n(1000) lcolor(gs12) lpattern(solid) ) ///
 (function y=(1-x)/x*.12 ,  range(.32432 .499) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(scatter tax_kakwani taxshare if zone==1, mlabel(country) msymbol(oh) mlabvpos(position_fig7)) ///
-, legend(off) ytitle("Tax progressivity") xtitle("Tax rate")
+(scatter tax_kakwani taxshare if zone==1, mlabel(country) msymbol(o) mlabvpos(position_fig7) mcolor(gs4) ) ///
+, legend(off) ytitle("Tax progressivity") xtitle("Tax rate") ///
+text(0.02 0.5 ".02", place(e) size(vsmall) color(gs8)) ///
+text(0.04 0.5 ".04", place(e) size(vsmall) color(gs8)) ///
+text(0.06 0.5 ".06", place(e) size(vsmall) color(gs8)) ///
+text(0.08 0.5 ".08", place(e) size(vsmall) color(gs8)) ///
+text(0.1 0.5 ".10", place(e) size(vsmall) color(gs8)) ///
+text(0.12 0.5 ".12", place(e) size(vsmall) color(gs8))
 
 drop position_fig7
  
@@ -340,7 +390,7 @@ replace position_fig7bis = 9 if country=="France"
 replace position_fig7bis = 6 if country=="Luxembourg"
 replace position_fig7bis = 12 if country=="Canada"
  
-twoway (scatter r3to4 taxshare if zone==1 , mlabel(country) msymbol(oh) mlabvpos(position_fig7bis)) ///
+twoway (scatter r3to4 taxshare if zone==1 , mlabel(country) msymbol(o) mlabvpos(position_fig7bis)) ///
 || lfit r3to4 taxshare , range(0.2 .45)  legend(off) ytitle(Inequality reduction due to taxes)
 
 drop position_fig7bis
@@ -352,33 +402,85 @@ graph export "figure7bis.pdf", replace
 /*incompatibilité*/
  
 *Tax et progressivité
- 
-twoway (scatter tax_kakwani taxshare, mlabel(countryyear_upper) msymbol(oh)) ///
- (lfit tax_kakwani taxshare) ///
+
+gen position_fig8 = 3
+replace position_fig8 = 4 if country=="Australia"
+replace position_fig8 = 9 if country=="Austria"
+replace position_fig8 = 9 if country=="Canada"
+replace position_fig8 = 3 if country=="Czech Republic"
+replace position_fig8 = 10 if country=="Estonia"
+replace position_fig8 = 3 if country=="Germany"
+replace position_fig8 = 3 if country=="Greece"
+replace position_fig8 = 3 if country=="Iceland"
+replace position_fig8 = 3 if country=="Ireland"
+replace position_fig8 = 2 if country=="Israel"
+replace position_fig8 = 3 if country=="Italy"
+replace position_fig8 = 8 if country=="Luxembourg"
+replace position_fig8 = 12 if country=="Norway"
+replace position_fig8 = 8 if country=="Netherlands"
+replace position_fig8 = 8 if country=="Slovak Republic"
+replace position_fig8 = 12 if country=="Spain"
+replace position_fig8 = 9 if country=="United States"
+
+
+/* * Old figure: 
+twoway (lfit tax_kakwani taxshare, color(gs8)) ///
+(scatter tax_kakwani taxshare, mlabel(countryyear_upper) msymbol(none)) ///
  ,  legend(off) ytitle("Tax progressivity") xtitle("Tax rate") 
+ */
+ 
+twoway (lfit tax_kakwani taxshare, color(gs8)) ///
+(scatter tax_kakwani taxshare, msymbol(o) mcolor(gs12) ) ///
+(scatter tax_kakwani taxshare if zone==1, msymbol(o) mcolor(gs4) mlabel(country) mlabvpos(position_fig8)) ///
+ ,  legend(off) ytitle("Tax progressivity") xtitle("Tax rate") 
+ 
+drop position_fig8
 
 graph export "figure8.pdf", replace
 
 
 
 ******targetting and size*
-twoway (scatter transfer_kakwani transshare, mlabel(countryyear_upper) msymbol(oh)) ///
-(lfit transfer_kakwani transshare) ///
-(lfit transfer_kakwani transshare if country!="Ireland" & country!="United Kingdom") ///
-,  legend(label(1 "Country-year") ///
-lab(2 "Fitted value") lab(3 "Fitted value without UK and IE") ///
-ring(0) position(2)) ///
+
+gen position_fig9 = 3
+
+replace position_fig9 = 12 if country=="Australia"
+replace position_fig9 = 8 if country=="Austria"
+replace position_fig9 = 2 if country=="Canada"
+replace position_fig9 = 10 if country=="Czech Republic"
+replace position_fig9 = 9 if country=="Germany"
+replace position_fig9 = 8 if country=="Greece"
+replace position_fig9 = 9 if country=="Iceland"
+replace position_fig9 = 12 if country=="Ireland"
+replace position_fig9 = 9 if country=="Israel"
+replace position_fig9 = 9 if country=="Italy"
+replace position_fig9 = 6 if country=="Norway"
+replace position_fig9 = 11 if country=="Netherlands"
+replace position_fig9 = 8 if country=="Slovak Republic"
+replace position_fig9 = 3 if country=="Spain"
+replace position_fig9 = 12 if country=="United States"
+
+
+twoway ///
+(lfit transfer_kakwani transshare, color(gs8)) ///
+(lfit transfer_kakwani transshare if country!="Ireland" & country!="United Kingdom", color(gs8)) ///
+(scatter transfer_kakwani transshare, msymbol(o) mcolor(gs12) ) ///
+(scatter transfer_kakwani transshare if zone==1, msymbol(o) mcolor(gs4) mlabel(country) mlabvpos(position_fig9)) ///
+,  legend( order(1 "Fitted value" 2 "Fitted value without UK and IE") ring(0) position(4)) ///
+yscale(reverse) ///
 ytitle("Transfer targeting") xtitle("Transfer rate")
+
+drop position_fig9
 
 graph export "figure9.pdf", replace
  
 *Market income inequality and kakwani*
-twoway (scatter transfer_kakwani inc2_gini, mlabel(countryyear_upper) msymbol(oh)) ///
+twoway (scatter transfer_kakwani inc2_gini, mlabel(countryyear_upper) msymbol(none)) ///
 (lfit transfer_kakwani inc2_gini) ,  yscale(reverse) legend(off) ///
 ytitle("Transfer targeting") xtitle("Market Income inequality")
 graph save combi13.gph, replace
 
-twoway (scatter tax_kakwani inc2_gini, mlabel(countryyear_upper) msymbol(oh)) ///
+twoway (scatter tax_kakwani inc2_gini, mlabel(countryyear_upper) msymbol(none)) ///
 (lfit tax_kakwani inc2_gini) ,  legend(off) ///
 ytitle("Tax progressivity") xtitle("Market Income inequality")
 graph save combi14.gph, replace
@@ -401,31 +503,31 @@ gen label_fig5 = country /*+ " [" + string_r2to4 + "]"*/
 
 * Generate a position variable so the mlabels do not overlap
 gen position_fig5 = 3
-replace position_fig5 = 9 if country=="Norway"
-replace position_fig5 = 10 if country=="Luxembourg"
+replace position_fig5 = 12 if country=="Australia"
+replace position_fig5 = 3 if country=="Norway"
+replace position_fig5 = 9 if country=="Luxembourg"
 replace position_fig5 = 8 if country=="Spain"
 replace position_fig5 = 11 if country=="Czech Republic"
-replace position_fig5 = 2 if country=="Netherlands"
+replace position_fig5 = 9 if country=="Netherlands"
 replace position_fig5 = 6 if country=="Iceland"
 replace position_fig5 = 6 if country=="Greece"
+replace position_fig5 = 9 if country=="Canada"
 
 
-recode hhaa_r2to4 (0 / 0.049 = 1)  (0.05 / .081 = 2) ( .082 / .13 = 3) (0.131 / 0.2 = 4) , gen(redis_categories)
+recode hhaa_r2to4 (0 / 0.0449 = 1)  (0.045 / .081 = 2) ( .082 / .125 = 3) (0.1251 / 0.2 = 4) , gen(redis_categories)
 
 
 /*Figure 5 role respectif */
 twoway (function y=x, range(0 .1) lcolor(gs12) lpattern(solid)) ///
-(scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==1 , msymbol(th) msize(medsmall) mcolor(gs8) ) ///
 (scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==2 , msymbol(oh) msize(medsmall) mcolor(gs6) ) ///
 (scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==3 , msymbol(oh) msize(large) mcolor(gs4) ) ///
 (scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==4 , msymbol(th) msize(large) mcolor(gs8) ) ///
-(scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==1 , mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs8)) ///
 (scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==2 , mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs6)) ///
 (scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==3 , mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs4) ) ///
 (scatter  hhaa_r2to3 hhaa_r3to4 if redis_categories==4, mlabel(label_fig5) msymbol(none) mlabvpos(position_fig5) mlabcolor(gs8)) ///
 if zone==1, ///
 ytitle(Transfer inequality reduction) xtitle(Tax inequality reduction) ///
-legend(order(3 "Low reduction cluster" 4 "High reduction cluster" 2 "Low reduction outlier" 5 "High reduction outlier") ring(0) position(10) bmargin(large)) ///
+legend(order(2 "Low reduction cluster" 3 "High reduction cluster" 4 "High reduction outlier") ring(0) position(10) bmargin(large)) ///
 xscale(range(0 .105))
 
 drop position_fig5 redis_categories string_r2to4 label_fig5
@@ -434,18 +536,32 @@ graph export "figure5_hhaa.pdf", replace
 
 
 *Tax et progressivité
+
+gen position_fig8 = 3
+replace position_fig8 = 3 if country=="Australia"
+replace position_fig8 = 4 if country=="Austria"
+replace position_fig8 = 3 if country=="Norway"
+replace position_fig8 = 3 if country=="Luxembourg"
+replace position_fig8 = 9 if country=="Spain"
+replace position_fig8 = 6 if country=="Czech Republic"
+replace position_fig8 = 1 if country=="Netherlands"
+replace position_fig8 = 4 if country=="Iceland"
+replace position_fig8 = 3 if country=="Greece"
+replace position_fig8 = 9 if country=="Canada"
+replace position_fig8 = 9 if country=="Estonia"
+replace position_fig8 = 9 if country=="Denmark"
+replace position_fig8 = 12 if country=="Finland"
+replace position_fig8 = 12 if country=="Germany"
  
-twoway (scatter hhaa_tax_kakwani hhaa_taxshare, mlabel(countryyear_upper) msymbol(oh)) ///
- (lfit tax_kakwani taxshare) ///
+twoway ///
+(lfit tax_kakwani taxshare) ///
+(scatter hhaa_tax_kakwani hhaa_taxshare, msymbol(o) mcolor(gs12)) ///
+(scatter hhaa_tax_kakwani hhaa_taxshare if zone==1, msymbol(o) mcolor(gs4) mlabel(country) mlabvpos(position_fig8)) ///
  ,  legend(off) ytitle("Tax progressivity") xtitle("Tax rate") 
+ 
+drop position_fig8
 
 graph export "figure8_hhaa.pdf", replace
-
-
-
-
-
-
 
 
 
@@ -460,28 +576,40 @@ graph export "figure8_hhaa.pdf", replace
 
 * Generate a position variable so the mlabels do not overlap
 gen position_figA1 = 3
-replace position_figA1 = 12 if country=="United Kingdom"
-replace position_figA1 = 6 if country=="Spain"
-replace position_figA1 = 7 if country=="Italy"
-replace position_figA1 = 6 if country=="Sweden"
+replace position_figA1 = 2 if country=="United Kingdom"
+replace position_figA1 = 3 if country=="Spain"
+replace position_figA1 = 9 if country=="Italy"
+replace position_figA1 = 9 if country=="Sweden"
 replace position_figA1 = 9 if country=="Luxembourg"
-replace position_figA1 = 6 if country=="Greece"
-replace position_figA1 = 6 if country=="Finland"
-replace position_figA1 = 6 if country=="Estonia"
-replace position_figA1 = 6 if country=="United States"
-replace position_figA1 = 9 if country=="Norway"
-replace position_figA1 = 6 if country=="Austria"
+replace position_figA1 = 9 if country=="Greece"
+replace position_figA1 = 3 if country=="Finland"
+replace position_figA1 = 12 if country=="Estonia"
+replace position_figA1 = 7 if country=="United States"
+replace position_figA1 = 3 if country=="Norway"
+replace position_figA1 = 3 if country=="Austria"
 replace position_figA1 = 6 if country=="Israel"
+replace position_figA1 = 9 if country=="Netherlands"
+replace position_figA1 = 9 if country=="Slovak Republic"
+replace position_figA1 = 11 if country=="Iceland"
+replace position_figA1 = 9 if country=="France"
+replace position_figA1 = 9 if country=="Ireland"
 
 
 twoway ///
-(function y=-(1+x)/x*.05 , range(.1 .35) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.07 , range(.1 .35) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.09 , range(.1139 .35) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.11 , range(.1358 .35) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(function y=-(1+x)/x*.13 , range(.1566 .35) n(1000) lcolor(gs12) lpattern(solid) ) ///
-(scatter kakwani_pension pubpensionrate if zone==1 , mlabel(country) msymbol(oh) mlabvpos(position_figA1)) ///
-,yscale(reverse ) legend(off) xscale(range(0.1 .35))  ///
+(function y=-(1+x)/x*.01 , range(.01266 .4) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.03 , range(.03896 .4) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.05 , range(.06666 .4) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.07 , range(.09589 .4) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.09 , range(.12676 .4) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(function y=-(1+x)/x*.11 , range(.15942 .4) n(1000) lcolor(gs12) lpattern(solid) ) ///
+(scatter kakwani_pension pubpensionrate if zone==1 , mlabel(country) mcolor(gs4) msymbol(o) mlabvpos(position_figA1)) ///
+,yscale(reverse ) legend(off)  ///
+text(-0.035 0.4 ".01", place(e) size(vsmall) color(gs8)) ///
+text(-0.105 0.4 ".03", place(e) size(vsmall) color(gs8)) ///
+text(-0.175 0.4 ".05", place(e) size(vsmall) color(gs8)) ///
+text(-0.245 0.4 ".07", place(e) size(vsmall) color(gs8)) ///
+text(-0.315 0.4 ".09", place(e) size(vsmall) color(gs8)) ///
+text(-0.385 0.4 ".11", place(e) size(vsmall) color(gs8)) ///
  ytitle("Pension targeting")  xtitle("Pension rate") 
   
 drop position_figA1
@@ -490,27 +618,31 @@ graph export "figureA1.pdf", replace
 
 /*Egalite revenu disponible et montant des pensions*/
 gen position_figA2 = 3
-replace position_figA2 = 7 if country=="Luxembourg"
-replace position_figA2 = 5 if country=="Denmark"
-replace position_figA2 = 1 if country=="Sweden"
+replace position_figA2 = 3 if country=="Luxembourg"
+replace position_figA2 = 3 if country=="Denmark"
+replace position_figA2 = 4 if country=="Sweden"
 replace position_figA2 = 4 if country=="Finland"
-replace position_figA2 = 2 if country=="Greece"
-replace position_figA2 = 2 if country=="Norway"
+replace position_figA2 = 3 if country=="Greece"
+replace position_figA2 = 12 if country=="Norway"
 replace position_figA2 = 12 if country=="United Kingdom"
-replace position_figA2 = 6 if country=="Israel"
+replace position_figA2 = 2 if country=="Israel"
 replace position_figA2 = 5 if country=="Estonia"
-replace position_figA2 = 2 if country=="United States"
+replace position_figA2 = 4 if country=="United States"
 replace position_figA2 = 2 if country=="Slovak Republic"
+replace position_figA2 = 4 if country=="Czech Republic"
+replace position_figA2 = 12 if country=="Austria"
+replace position_figA2 = 2 if country=="Italy"
 
 
-twoway (lfit pubpensionrate inc2_gini, lcolor(gs5) lpattern(solid)) ///
-(lfit pubpensionrate inc4_gini, lcolor(gs5) lpattern(dash)) ///
-(pcspike pubpensionrate inc2_gini pubpensionrate inc4_gini if zone==1 , lcolor(gs12)) ///
+*twoway (lfit pubpensionrate inc2_gini, lcolor(gs5) lpattern(solid)) ///
+*(lfit pubpensionrate inc4_gini, lcolor(gs5) lpattern(dash))
+
+twoway (pcspike pubpensionrate inc2_gini pubpensionrate inc4_gini if zone==1 , lcolor(gs12)) ///
 (scatter pubpensionrate inc2_gini, mlabel(country) mlabvpos(position_figA2) msymbol(X) mcolor(gs3)) ///
 (scatter pubpensionrate inc4_gini , msymbol(o) xscale(range(.25 .52)) mcolor(gs3) ) ///
 if zone==1 ///
 , ytitle("Pension rate")  xtitle("Income inequality (Disposble and Market)") ///
-legend(order(4 "Market income" 5 "Disposable income" 3 "Inequality reduction") ring(0) position(2) bmargin(large))
+legend(order(2 "Market income" 3 "Disposable income" 1 "Inequality reduction") ring(0) position(2) bmargin(large))
 
 drop position_figA2
 
