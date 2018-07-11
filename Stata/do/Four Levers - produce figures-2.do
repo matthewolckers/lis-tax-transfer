@@ -183,12 +183,13 @@ twoway (histogram Lisorig, color(gs12) xscale(range(.1 .7)) xlabel(#8) yscale(ra
 graph export "figure2.pdf", replace
 
 ************Figure 3 Part des cotisations employeur et employés******
+gen sscis=ssc if ccode=="is"
+replace sum=sscis if ccode=="is"
 
-
-graph bar (asis) sscee sscem if zone==1, ///
+graph bar (asis) sscee sscem sscis if zone==1, ///
 over(country, sort(sum) descending label(angle(forty_five))) ///
 stack ytitle(Percentage of GDP) ///
-legend(order(1 "Employee contributions" 2 "Employer contributions") ring(0) position(2) bmargin(large)) ///
+legend(order(1 "Employee contributions" 2 "Employer contributions" 2 "Social contributions (undistinct)") ring(0) position(2) bmargin(large)) ///
 bar(1,color(gs2)) bar(2,color(gs12))
 
 
