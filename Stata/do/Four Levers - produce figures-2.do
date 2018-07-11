@@ -1,13 +1,13 @@
 clear
 
-*cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
-cd "/Users/matthewolckers/repos/lis-tax-transfer"
+cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
+*cd "/Users/matthewolckers/repos/lis-tax-transfer"
 use "LIS et OECD.dta", clear
 
 * Set scheme and save figures in a folder with the scheme name
 set scheme plotplain, perm
-*cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
-cd "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
+cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
+*cd "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
 
 *****************************************
 * Labels
@@ -153,6 +153,16 @@ sort r2to4
 *encode country if zone==1 & constax_kakwani!=., gen(ccode)
 
 gen ccodeshort=substr(countryyear, 1, 2)
+
+/*Table of main variable by countryyears
+order countryyear inc2_gini inc3_gini inc4_gini dhi_gini transshare ///
+ transfer_kakwani taxshare tax_kakwani r2to3 Ve23 Rerank3 r3to4 ///
+ Ve34 Rerank4 pubpensionrate kakwani_pension Vepension
+ 
+keep countryyear inc2_gini inc3_gini inc4_gini dhi_gini transshare ///
+ transfer_kakwani taxshare tax_kakwani r2to3 Ve23 Rerank3 r3to4 ///
+ Ve34 Rerank4 pubpensionrate kakwani_pension Vepension
+*/
 
 
 *******************************************
