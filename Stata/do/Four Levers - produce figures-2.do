@@ -678,7 +678,7 @@ twoway (lfit hhaa_tax_kakwani EPL) (scatter hhaa_tax_kakwani EPL, mlabel(country
 graph save EPLa.gph,replace 
  
 twoway (lfit hhaa_transfer_kakwani EPL) (scatter hhaa_transfer_kakwani EPL, mlabel(countryyear)) ///
- if zone==1, xtitle(EPL index (regular contracts)) ytitle(Transfer targetting) legend(off) yscale(reverse)
+ if zone==1, xtitle(EPL index (regular contracts)) ytitle(Transfer targetting) legend(off)
 
 graph save EPLb.gph,replace 
 
