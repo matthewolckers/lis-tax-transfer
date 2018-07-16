@@ -1,13 +1,13 @@
 clear
 
-*cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
-cd "/Users/matthewolckers/repos/lis-tax-transfer"
+cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
+*cd "/Users/matthewolckers/repos/lis-tax-transfer"
 use "LIS et OECD.dta", clear
 
 * Set scheme and save figures in a folder with the scheme name
 set scheme plotplain, perm
-*cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
-cd "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
+cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
+*cd "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
 
 *****************************************
 * Labels
@@ -154,6 +154,16 @@ sort r2to4
 
 gen ccodeshort=substr(countryyear, 1, 2)
 
+/*Table of main variable by countryyears
+order countryyear inc2_gini inc3_gini inc4_gini dhi_gini transshare ///
+ transfer_kakwani taxshare tax_kakwani r2to3 Ve23 Rerank3 r3to4 ///
+ Ve34 Rerank4 pubpensionrate kakwani_pension Vepension
+ 
+keep countryyear inc2_gini inc3_gini inc4_gini dhi_gini transshare ///
+ transfer_kakwani taxshare tax_kakwani r2to3 Ve23 Rerank3 r3to4 ///
+ Ve34 Rerank4 pubpensionrate kakwani_pension Vepension
+*/
+
 
 *******************************************
 * Taux de couverture des données et rôle respectifs des cotisations employeur et salariés**********
@@ -173,12 +183,13 @@ twoway (histogram Lisorig, color(gs12) xscale(range(.1 .7)) xlabel(#8) yscale(ra
 graph export "figure2.pdf", replace
 
 ************Figure 3 Part des cotisations employeur et employés******
+gen sscis=ssc if ccode=="is"
+replace sum=sscis if ccode=="is"
 
-
-graph bar (asis) sscee sscem if zone==1, ///
+graph bar (asis) sscee sscem sscis if zone==1, ///
 over(country, sort(sum) descending label(angle(forty_five))) ///
 stack ytitle(Percentage of GDP) ///
-legend(order(1 "Employee contributions" 2 "Employer contributions") ring(0) position(2) bmargin(large)) ///
+legend(order(1 "Employee contributions" 2 "Employer contributions" 2 "Social contributions (undistinct)") ring(0) position(2) bmargin(large)) ///
 bar(1,color(gs2)) bar(2,color(gs12))
 
 
