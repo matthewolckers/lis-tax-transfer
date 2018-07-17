@@ -1,13 +1,18 @@
 clear
 
-cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
-*cd "/Users/matthewolckers/repos/lis-tax-transfer"
+global data_dir "/Users/matthewolckers/repos/lis-tax-transfer"
+* global data_dir C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\
+global output_dir "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
+
+cd $data_dir
+
 use "LIS et OECD.dta", clear
+
+cd $output_dir
 
 * Set scheme and save figures in a folder with the scheme name
 set scheme plotplain, perm
-cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
-*cd "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
+
 
 *****************************************
 * Labels
@@ -678,7 +683,7 @@ twoway (lfit hhaa_tax_kakwani EPL) (scatter hhaa_tax_kakwani EPL, mlabel(country
 graph save EPLa.gph,replace 
  
 twoway (lfit hhaa_transfer_kakwani EPL) (scatter hhaa_transfer_kakwani EPL, mlabel(countryyear)) ///
- if zone==1, xtitle(EPL index (regular contracts)) ytitle(Transfer targetting) legend(off)
+ if zone==1, xtitle(EPL index (regular contracts)) ytitle(Transfer targetting) legend(off) yscale(reverse)
 
 graph save EPLb.gph,replace 
 
@@ -725,9 +730,8 @@ graph export "figure4PB-english.pdf", replace
 *******************Appendix with and without imputations**************
 
 clear
-*cd  "/home/m.olckers/U/LIS Four Levers/"
 
-cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\"
+cd $data_dir
 use "NI_LIS et OECD.dta", clear
 
 *****************************************
@@ -867,7 +871,7 @@ save "With and without imputations.dta", replace
 
 * Set scheme and save figures in a folder with the scheme name
 set scheme plotplain, perm
-cd "C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\Stata\output\"
+cd $output_dir
 
 *****************************************
 * Labels
@@ -1024,13 +1028,22 @@ gen ccodeshort=substr(countryyear, 1, 2)
 * Figure A3
 *************************************
 gen position_figA3 = 9
-replace position_figA3 = 10 if country=="Austria"
-replace position_figA3 = 12 if country=="Germany"
-replace position_figA3 = 6 if country=="Denmark"
-replace position_figA3 = 6 if country=="Italy"
-replace position_figA3 = 10 if country=="Greece"
-replace position_figA3 = 10 if country=="United States"
+replace position_figA3 = 2 if country=="Austria"
+replace position_figA3 = 2 if country=="France"
+replace position_figA3 = 2 if country=="Ireland"
+replace position_figA3 = 12 if country=="Israel"
+*replace position_figA3 = 12 if country=="Germany"
+*replace position_figA3 = 6 if country=="Denmark"
+replace position_figA3 = 12 if country=="Italy"
+replace position_figA3 = 11 if country=="Luxembourg"
+replace position_figA3 = 8 if country=="Greece"
+replace position_figA3 = 7 if country=="United States"
 replace position_figA3 = 10 if country=="Estonia"
+replace position_figA3 = 10 if country=="Spain"
+replace position_figA3 = 2 if country=="Netherlands"
+replace position_figA3 = 8 if country=="Norway"
+replace position_figA3 = 1 if country=="Finland"
+replace position_figA3 = 11 if country=="Czech Republic"
 
 
 twoway ///
@@ -1052,21 +1065,22 @@ graph export "figureA3.pdf", replace
 *************************************
 
 gen position_figA4 = 9
-replace position_figA4 = 12 if country=="United Kingdom"
-replace position_figA4 = 12 if country=="Iceland"
-replace position_figA4 = 7 if country=="Netherlands"
+replace position_figA4 = 2 if country=="United States"
+replace position_figA4 = 12 if country=="Netherlands"
+replace position_figA4 = 12 if country=="Denmark"
 replace position_figA4 = 12 if country=="Finland"
-replace position_figA4 = 6 if country=="Estonia"
-replace position_figA4 = 11 if country=="Israel"
-replace position_figA4 = 11 if country=="Luxembourg"
-replace position_figA4 = 3 if country=="Czech Republic"
-replace position_figA4 = 3 if country=="Slovak Republic"
-replace position_figA4 = 10 if country=="Australia"
+replace position_figA4 = 6 if country=="Israel"
+replace position_figA4 = 11 if country=="Czech Republic"
+replace position_figA4 = 11 if country=="Greece"
+replace position_figA4 = 12 if country=="Australia"
+replace position_figA4 = 12 if country=="Italy"
+replace position_figA4 = 2 if country=="Germany"
+replace position_figA4 = 12 if country=="Norway"
 
 
 gen label_dummy_A4 = 0
-replace label_dummy_A4 = 1 if country=="Czech Republic"
-replace label_dummy_A4 = 1 if country=="Slovak Republic"
+*replace label_dummy_A4 = 1 if country=="Czech Republic"
+*replace label_dummy_A4 = 1 if country=="Slovak Republic"
 
 twoway ///
 (function y=x, range(0 .1) lcolor(gs12) lpattern(solid)) ///
