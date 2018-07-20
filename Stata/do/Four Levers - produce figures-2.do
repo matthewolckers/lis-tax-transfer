@@ -633,6 +633,8 @@ drop position_figA1
 graph export "figureA1.pdf", replace
 
 /*Egalite revenu disponible et montant des pensions*/
+
+/*
 gen position_figA2 = 3
 replace position_figA2 = 3 if country=="Luxembourg"
 replace position_figA2 = 3 if country=="Denmark"
@@ -648,11 +650,13 @@ replace position_figA2 = 2 if country=="Slovak Republic"
 replace position_figA2 = 4 if country=="Czech Republic"
 replace position_figA2 = 12 if country=="Austria"
 replace position_figA2 = 2 if country=="Italy"
+*/
 
 
 *twoway (lfit pubpensionrate inc2_gini, lcolor(gs5) lpattern(solid)) ///
 *(lfit pubpensionrate inc4_gini, lcolor(gs5) lpattern(dash))
 
+/*
 twoway (pcspike pubpensionrate inc2_gini pubpensionrate inc4_gini if zone==1 , lcolor(gs12)) ///
 (scatter pubpensionrate inc2_gini, mlabel(country) mlabvpos(position_figA2) msymbol(X) mcolor(gs3)) ///
 (scatter pubpensionrate inc4_gini , msymbol(o) xscale(range(.25 .52)) mcolor(gs3) ) ///
@@ -661,6 +665,18 @@ if zone==1 ///
 legend(order(2 "Market income" 3 "Disposable income" 1 "Inequality reduction") ring(0) position(2) bmargin(large))
 
 drop position_figA2
+*/
+
+gen total_temp = -1*(Vepension + r2to3 + r3to4)
+
+graph bar (asis) Vepension r2to3 r3to4 if zone==1, ///
+over(country, sort(total_temp) label(angle(forty_five))) stack ///
+ytitle(Reduction of Inequality (Gini points)) ///
+legend(order(3 "Tax inequality reduction" 2 "Transfer inequality reduction" 1 "Pension inequality reduction"  ) ring(0) position(2) bmargin(large)) ///
+bar(1,color(gs2)) bar(2,color(gs8)) bar(3,color(gs12))
+
+drop total_temp
+
 
 graph export "figureA2.pdf", replace
 
