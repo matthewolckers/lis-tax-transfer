@@ -1,9 +1,11 @@
 # Analyze the impact of taxes and transfers on inequality using LIS data
 Research project by [Elvire Guillaud](https://sites.google.com/site/elvireguillaud/), [Matthew Olckers](http://www.matthewolckers.com/), and [Michaël Zemmour](https://sites.google.com/site/mzemmour/home).
 
-This repo includes all the code and supplementary data needed to extract the data from the Luxembourg Income Study (LIS) database we used in our study [Four levers of redistribution: The impact of tax and transfer systems on inequality reduction](http://www.lisdatacenter.org/wps/liswps/695.pdf). Most researchers will be interested in our imputations of social security contributions.
+This repo includes all the code and supplementary data needed to extract the data from the Luxembourg Income Study (LIS) database we used in our study [Four levers of redistribution: The impact of tax and transfer systems on inequality reduction](http://www.lisdatacenter.org/wps/liswps/695.pdf). The [Luxembourg Income Study (LIS)](http://www.lisdatacenter.org/) provides harmonized national survey data from 46 countries over multiple years. The database in constantly growing by including new countries and expanding the number of years per country.
 
-The [Luxembourg Income Study (LIS)](http://www.lisdatacenter.org/) provides harmonized national survey data from 46 countries over multiple years. The database in constantly growing by including new countries and expanding the number of years per country.
+One of the main contributions of our paper is to enrich the LIS data by imputing employer (and in some cases employee) social security contributions. Researchers wishing to include the imputations in their own code may fork this repository.
+
+In addition to the authors, [Victor Amoureux](https://fr.linkedin.com/in/victor-amoureux-54579194) contributed extensively to the code.  
 
 ## Explaining the code used to retrieve the data
 Data is retrieved using the LISSY interface, which allows the researcher to input Stata code and the Stata output text is then returned via email (log file). The data restrictions on LIS prevent you from viewing the data itself. Commands such a list or browse cannot be used. My approach was to gather a series of summary statistics of the LIS data to create a new country-level dataset.
