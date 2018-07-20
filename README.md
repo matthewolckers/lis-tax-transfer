@@ -1,33 +1,30 @@
 # Analyze the impact of taxes and transfers on inequality using LIS data
 Research project by [Elvire Guillaud](https://sites.google.com/site/elvireguillaud/), [Matthew Olckers](http://www.matthewolckers.com/), and [Michaël Zemmour](https://sites.google.com/site/mzemmour/home).
 
-This repo includes all the code and supplementary data needed to extract the data from the Luxembourg Income Study (LIS) database we used in our study [Four levers of redistribution: The impact of tax and transfer systems on inequality reduction](http://www.lisdatacenter.org/wps/liswps/695.pdf).
+This repo includes all the code and supplementary data needed to extract the data from the Luxembourg Income Study (LIS) database we used in our study [Four levers of redistribution: The impact of tax and transfer systems on inequality reduction](http://www.lisdatacenter.org/wps/liswps/695.pdf). Most researchers will be interested in our imputations of social security contributions.
 
 The [Luxembourg Income Study (LIS)](http://www.lisdatacenter.org/) provides harmonized national survey data from 46 countries over multiple years. The database in constantly growing by including new countries and expanding the number of years per country.
-
-This guide is written by Matthew Olckers.
 
 ## Explaining the code used to retrieve the data
 Data is retrieved using the LISSY interface, which allows the researcher to input Stata code and the Stata output text is then returned via email (log file). The data restrictions on LIS prevent you from viewing the data itself. Commands such a list or browse cannot be used. My approach was to gather a series of summary statistics of the LIS data to create a new country-level dataset.
 
-This section provides a step-by-step guide to the Stata code I used to create the main set of variables in the country-level dataset. The code snippet is shown first, with the corresponding explanation underneath.
+This section provides a step-by-step guide to the Stata code we used to create the main set of variables in the country-level dataset. The code snippet is shown first, with the corresponding explanation underneath. Most the code refers to the file `1a_Extract_from_Lissy.do` located in the `Stata\do` sub-directory. 
 
-(I have a feeling it would have been much easier to do this in R but LIS added support for R only after we had already started.)
+(Disclaimer: It may have been much easier to do this in R but LIS added support for R only after we had already started. If you wish to redo our work in R, please do!)
 
 ### Start by defining the globals
 
 ```
-global datasets "au03 au08 au10 at04 ca04 ...
+global datasets "at04 at07 at13 au03 au08 au10 ca04 ...
 
-global pvars "pid hid dname pil age"
+global net_datasets "at00 be00 gr00 hu05 hu07 ...
 
-global hvars "hid dname nhhmem dhi nhhmem65 hwgt"
+global pvars "pid hid dname pil pxit pxiti pxits age emp relation"
 
-global hvarsflow "hil hic pension hits hitsil hitsup hitsap hitp hxiti hxits hc hicvip"
+global hvars "hid dname nhhmem dhi nhhmem17 nhhmem65 hwgt"
 
-global hvarsnew "hsscer hxct"
+global hvarsflow "hil hic pension hits hitsil ...
 
-global hvarsinc "inc1 inc2 inc3 inc4 inc5 tax transfer"
 ```
 The program (.do file) begins by defining a set of globals. The globals are simply a shortening for the text inside the inverted commas. The global datasets corresponds to all the country-years on which this program will be executed. For example, au03 represent Australia 2003. At the time we started, LIS had 266 country-years in their database. The database grows as new national household surveys are harmonized to the LIS structure.
 
@@ -36,35 +33,40 @@ The other globals such as pvars, hvars, etc. are lists of variables that are use
 ### Program 1: Generate social security variables from person level dataset
 ```
 program define gen_pvars
-
-merge m:1 dname using "http://s3.eu-central-1.amazonaws.com/lissy/ssc_stata12.dta", keep(match) nogenerate
+  merge_ssc
+  gen_employee_ssc
+  manual_corrections_employee_ssc
+  gen_employer_ssc
+  manual_corrections_employer_ssc
+  convert_ssc_to_household_level
+end
 ```
 The most efficient way to work with LISSY is to define all the programs first, and then implement the programs with a loop over all country-years (taking special care to output only the information you need). By default, Stata log output includes many details of the intermediate steps of your program, but these details may be suppressed by defining the program first and running the program quietly .
 
-The above code defines the first program `gen_pvars`, which works off the individual-level data recorded in LIS. All surveys in the LIS database contain household-level and individual-level variables. Individual level variables have the prefix `p`, for person.
-
-This program starts by merging an external dataset hosted on a website to the individual-level survey of the particular country-year under observation. The variable `dname` is short for dataset name. For example, `au03` is a `dname` for Australia 2003. The LISSY interface is run using Stata 12 so the external dataset must also be saved in Stata 12 format. This version of Stata is only capable of merging from an unencrypted website (notice that the url starts with `http://`). If the website is encrypted (url starts with `https://`), then the merge cannot be completed by Stata 12.
-
-The file *ssc_stata12.dta* contains a set of social security rates and ceiling for each country-year. Once the relevant rates and ceiling are merged into the individual-level dataset, the employer social security contributions may be imputed.
+The above code defines the first program `gen_pvars`, which works off the individual-level data recorded in LIS.`gen_pvars` is a collection of sub-programs that implement each step. The `gen_pvars` program starts with the `merge_ssc` sub-program, which merges an external dataset hosted the LIS server of the particular country-year under observation. The variable `dname` is short for dataset name. For example, `au03` is a `dname` for Australia 2003. 
 
 ```
-gen psscer=.
-
-replace psscer = pil*er_r1
-
-replace psscer = (pil-er_c1)*er_r2 + er_r1*er_c1  if pil>er_c1 & er_c1!=.
-
-replace psscer = (pil-er_c2)*er_r3 + er_r2*er_c2 + er_r1*er_c1 if pil>er_c2 & er_c2!=.
-
-...
-
-*Manual adjustment for France 2010
-
-replace psscer=psscer-((0.26/0.6)*((25800.32/pil)-1)*pil) if pil>16125 & pil<25800.32 & dname=="fr10"
+program define merge_ssc
+	merge m:1 dname using "$mydata/vamour/SSC_20180621.dta", keep(match) nogenerate
+end
 ```
-Social security contributions are imputed with a series of *replace* commands. The code starts by applying the rate below the first ceiling. It then corrects the social security contributions for all individuals above the first ceiling, and then above the second ceiling, and so on.
 
-In certain cases the social security contributions are too complex to be summarised by a set of rates and ceilings. For example, France includes a sliding scale rebate to employer social security contributions for employees paid at and up to 1.6 times the minimum wage. I include manual adjustments for these country-years.
+The file *SSS_YYYYMMDD.dta* contains a set of social security rates and ceiling for each country-year. Once the relevant rates and ceiling are merged into the individual-level dataset, the employer social security contributions may be imputed.
+
+
+```
+program define gen_employer_ssc
+  * Generate Employer Social Security Contributions
+  gen psscer=.
+  replace psscer = pil*er_r1
+  replace psscer = (pil-er_c1)*er_r2 + er_r1*er_c1  if pil>er_c1 & er_c1!=.
+  ...
+```
+
+Social security contributions are imputed with a series of *replace* commands. The code starts by applying the rate below the first ceiling. It then corrects the social security contributions for all individuals above the first ceiling, and then above the second ceiling, and so on. All surveys in the LIS database contain household-level and individual-level variables. Individual level variables have the prefix `p`, for person. `p` is individual level labour income.  
+
+
+In certain cases the social security contributions are too complex to be summarised by a set of rates and ceilings. For example, France includes a sliding scale rebate to employer social security contributions for employees paid at and up to 1.6 times the minimum wage. We include manual adjustments for these country-years.
 
 ```
 bysort hid: egen hsscee=total(psscee)
@@ -83,7 +85,7 @@ The first program is completed by summing the individual social security contrib
 
 LIS sources their data from many different statistical agencies around the world. Each agency has different aims for their national surveys, which results in significant challenges to harmonize this data.
 
-This project focusses on income, taxes, and transfers so any difference in the measurement of these variables across countries creates additional challenges to extract the data. The most common difference results from the income measure, which may be before or after taxes. *Gross* datasets measure income before income taxes and social security contributions. *Net* datasets measure income after income taxes and social security contributions. *Mixed* datasets (such as France) measure income after social security contributions, but before income taxes. The table below shows the split of the LIS database between these different type of datasets.
+This project focusses on income, taxes, and transfers so any difference in the measurement of these variables across countries creates additional challenges to extract the data. The most common difference results from the income measure, which may be before or after taxes. *Gross* datasets measure income before income taxes and social security contributions. *Net* datasets measure income after income taxes and social security contributions. *Mixed* datasets (such as France) measure income after social security contributions, but before income taxes. The table below shows the split of the LIS database between these different type of datasets (at the time we started our project). 
 
 
 | Number of datasets (country-years) | Income type | Income taxes and employee social security contributions (one-shot) | Income taxes | Employee social security contributions |
@@ -118,35 +120,22 @@ replace psscee = (pil-ee_c1)*ee_r2 + ee_r1*ee_c1  if pil>ee_c1
 
 Here is the same excerpt, but adjusted for mixed income (after employee social security contributions but before income taxes):
 ```
-replace psscee = ((pil_mix-ee_c1)*ee_r2)/(1-er_r2) + ee_r1*ee_c1  if pil_mix>ee_c1_mix
+replace psscee = 1/(1-ee_r2)*(ee_r2*(pil - ee_c1) + ee_r1*ee_c1) if pil>(ee_c1 - ee_r1*ee_c1) & pil<=(ee_c2 - ee_r1*ee_c1 - ee_r2*(ee_c2-ee_c1))
 ```
-Notice the adjustment to the formula when the input is mixed income instead of gross income. The first term must be divided by `(1-er_r2)` where `er_r2` is still the statutory rate that applies to gross income. The second part of the adjustment is to change the threshold `er_c1` to `er_c1_mix` where `er_c1_mix` is the ceiling that applies to mixed income. This adjustment may seem confusing at first glance, but it can be easily derived by plugging `(pil_mix + psscee) = pil` in the first formula.
+Notice the adjustment to the formula when the input is mixed income instead of gross income. The formula must be divided by `(1-er_r2)` where `er_r2` is still the statutory rate that applies to gross income. This adjustment may seem confusing at first glance, but it can be easily derived.
 
-The net datasets are even more complicated. To impute income taxes and employee social security contributions from formulas that apply to gross income when you only have net income creates simultaneous equations. This is because net income = gross income - employee ssc - income taxes. Rather than attempting to solve this simultaneous equation analytically, I have used a numerical solution.
-
-I create an external dataset that includes every integer value of net income and the corresponding taxes for every county-year covering the range of net income values observed in the respective datasets. This external dataset is created by plugging a large range of gross income values into the imputation formulas and recording the output. I first round the the income figures in the net datasets to the nearest integer and then match this value to the external dataset. This numerical matching allows me to impute the correct amount of employee social security contributions and income taxes, which can then be used to convert net income to gross income.
-
-### Program 2: Impute consumption taxes
-*Work in progress*
-
-### Program 3: Define the different stages of income
+### Program 2: Define the different stages of income
 
 ```
-program define income_stages
+program define inc_and_decile
 
-gen inc1 = hil + (hic-hicvip) + hsscer
-
-gen inc2 = hil + (hic-hicvip) + hsscer + (pension - hitsap - hitsup)
-
-gen inc3 = hil + (hic-hicvip) + hsscer + (pension - hitsap - hitsup) + (hits - hitsil)
-
-gen inc4 = hil + (hic-hicvip + (pension - hitsap - hitsup) + (hits - hitsil) - hxiti - hxits
-
-gen inc5 = hil + (hic-hicvip + (pension - hitsap - hitsup) + (hits - hitsil) - hxiti - hxits - hxct
-```
-The third program uses the income, tax, and transfer variables to define the stages of income of interest in this study. All variables are at the household level (as shown by h prefix in the variable names). Table 3 provides definitions of the income variables.
-
-If you add or subtract missing values in Stata, the result will be equal to missing. I have set the missing values equal to zero for most variables to prevent this problem. A more detailed analysis of missing values in each dataset is necessary to check if this operation creates any bias.
+  gen inc1 = marketincome
+  gen inc2 = marketincome + allpension
+  gen inc3 = marketincome + allpension + transfer
+  gen inc4 = marketincome + allpension + transfer - tax
+  ...
+```  
+The second program uses the income, tax, and transfer variables to define the stages of income of interest in this study. The table below provides definitions of the income stages. 
 
 | Variable name | Concept | Definition |
 |----|----|----|
@@ -154,71 +143,100 @@ If you add or subtract missing values in Stata, the result will be equal to miss
 | inc2 | Market income | Primary income + pensions |
 | inc3 | Gross income | Market income + cash social transfers (other than pensions) |
 | inc4 | Disposable income | Gross income - income taxation and social security contribution (employer and employee) |  
-| inc5 | Disposable income net of consumption taxes | Disposable income - tax on consumption |
 
-#### Program 4: Apply PPP conversions and equivalence scales to flow variables
+The variables are defined in the program `def_tax_and_transfer`. All variables are at the household level (as shown by h prefix in the variable names). .If you add or subtract missing values in Stata, the result will be equal to missing. We have set the missing values equal to zero for several variables to prevent this problem.
+
+```
+program define def_tax_and_transfer
+  ...
+  replace pubpension=0 if pubpension==.
+  replace hits=0 if hits==.
+  replace hicvip=0 if hicvip==.
+  replace hitsil=0 if hitsil==.
+  ...
+  gen tax = hxit + hsscer
+  gen hssc = hxits + hsscer
+  gen marketincome = hil + (hic-hicvip) + hsscer
+  ...
+```
+
+#### Program 3 Apply PPP conversions and equivalence scales to flow variables
 ```
 program define ppp_equiv
+  * Define PPP conversions to 2011 international dollars (ppp)
+  merge m:1 dname using "$mydata/vamour/ppp_20180622.dta", keep(match) nogenerate
 
-gen ppp =.
-replace ppp= 2.250787458 if dname== "au81"
-replace ppp= 1.657498516 if dname== "au85"
-replace ppp= 1.214320511 if dname== "au89"
+  * Complete the PPP conversions and equivalence scales with replace commands
+  foreach var in $hvarsflow $hvarsnew {
+    replace `var' = (`var'*ppp_2011_usd)/(nhhmem^0.5)
+    }
 ...
 ```
-Certain summary statistics are displayed in currency units so I completed purchasing power parity (PPP) conversions to allow for comparisons across countries. The excerpt above shows the PPP conversion rates for three country-years.
+Certain summary statistics are displayed in currency units so we completed purchasing power parity (PPP) conversions to allow for comparisons across countries. The excerpt above shows how the PPP conversions are completed.
 
-The most comprehensive PPP figures are supplied by the World Bank in their World Development Indicators database (WDI). In particular, the year 2011 includes PPP adjustments for the largest number of countries, as the World Bank released their second International Comparison Program (ICP) in this year. To exploit the data availability in 2011, the LIS approach was to convert any prices to their 2011 local currency levels using consumer price indexes and then convert to international US dollars using the PPP conversions.
-
-I had to make manual adjustments for country-years in which the currency used in that year was not the same as that used in 2011. For example, Italy used the Italian Lira in 1986 so the LIS microdata is measured in Lira for the 1986 Italian dataset. This PPP adjustment required three steps:
-- convert from 1986 prices to 2011 prices
-- convert from Lira to Euros
-- convert from 2011 Euros to 2011 international dollars under purchasing power parity
-The second step was missing and this is what my manual adjustment corrected for. All the countries that changed currencies provide a fixed rate to move from the old to the new currency, so these manual adjustments were straightforward.
-
-PPP conversion for the datasets of Taiwan from 1981 to 2007 could not be calculated because a consumer price index was not available for these years. There is a spreadsheet titled WDI-CPI-PPP accompanying this document, which shows my PPP calculations in detail.
-
-```
-foreach var in $hvarsflow $hvarsinc $hvarsnew {
-   replace `var' = 0 if `var' < 0 & `var' !=.  
-   replace `var' = (`var'*ppp)/(nhhmem^0.5)
-   }
-```
-I run a loop over all the variables that are measured in monetary units (flow variables) and apply the PPP conversions. I also apply the square root equivalence scale to correct for household size. This equivalence scale implies that a household of four members needs only double the income of a one-person household to reach the same level of consumption.
+We run a loop over all the variables that are measured in monetary units (flow variables) and apply the PPP conversions. We also apply the square root equivalence scale to correct for household size. This equivalence scale implies that a household of four members needs only double the income of a one-person household to reach the same level of consumption.
 
 ### Output: Loop over datasets and report summary statistics
-The final step is to use the program on each country-year in the LIS database. I run different versions of code for the gross, mixed, and net datasets.
+The final step is to use the program on each country-year in the LIS database. Slightly different codes are used for the mixed datasets of Italy and France. 
+
 ```
 foreach ccyy in $datasets {
-   use $pvars using $`ccyy'p,clear
-   quietly gen_pvars
-   quietly merge 1:1 hid using $`ccyy'h, keepusing($hvars
-           $hvarsflow) nogenerate
-   quietly gen_hxct
-   quietly income_stages
-   quietly ppp_equiv
-   quietly capture sgini transfer [aw=hwgt], sortvar(inc2)
-   local transconc = r(coeff)
-   quietly capture sgini tax [aw=hwgt], sortvar(inc2)
-   local taxconc = r(coeff)
-   quietly sum inc2 [w=hwgt]
-   local income_mean = r(mean)
-   quietly sum transfer [w=hwgt]
-   local transfer_mean = r(mean)
-   quietly sum tax [w=hwgt]
-   local tax_mean = r(mean)
-   foreach var in $hvarsinc {
-   quietly fastgini `var' [w=hwgt] , nocheck
-   local `var'_gini = r(gini)
-   forvalues num = 1/10 {
-   quietly sum `var' [w=hwgt] if decile==`num'
-   local `var'_mean_`num' = r(mean)
-   local `var'_min_`num' = r(min)
-   local `var'_max_`num' = r(max)
- }
- }
-	if "`ccyy'" == "au03" di "countryyear,decile,inc1_mean,inc1_min,inc1_max,inc2_mean ...
-		di "`ccyy',D01,`inc1_mean_1',`inc1_min_1',`inc1_max_1',`inc2_mean_1 ...
+  quietly use $pvars using $`ccyy'p, clear
+  local cc : di substr("`ccyy'",1,2)
+  if "`cc'" == "fr" {
+    quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
+    quietly FR_gen_pvars
+  }
+  else if "`cc'" == "it" {
+    quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
+    quietly IT_gen_pvars
+  }
+  else if strpos("$net_datasets","`ccyy'") > 0 {
+    quietly NET_gen_pvars
+  }
+  else {
+    quietly gen_pvars
+  }
+  quietly merge 1:1 hid using $`ccyy'h,  nogenerate // keepusing($hvars $hvarsflow)
+  quietly missing_values
+  if "`cc'" == "fr" {
+    quietly correct_dhi
+  }
+  quietly ppp_equiv
+  quietly def_tax_and_transfer
+  if "`cc'" == "fr" {
+    quietly FR_def_tax_and_transfer
+  }
+  foreach certain_ccyy in $fixpensions_datasets3 {
+    quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
+  }
+  foreach var in $hvarsinc $hvarsflow $hvarsnew {
+    quietly capture sgini `var' [aw=hwgt*nhhmem]
+    local `var'_gini = r(coeff)
+	quietly capture sgini `var' [aw=hwgt*nhhmem] if hhactivage==1
+    local hhaa_`var'_gini = r(coeff)
+    quietly sum `var' [w=hwgt*nhhmem]
+    local `var'_mean = r(mean)
+	quietly sum `var' [w=hwgt*nhhmem] if hhactivage==1
+    local hhaa_`var'_mean = r(mean)
+    foreach sortvar in $incconcept {
+      quietly capture sgini `var' [aw=hwgt*nhhmem], sortvar(`sortvar')
+      local `var'conc_`sortvar' = r(coeff)
+	  quietly capture sgini `var' [aw=hwgt*nhhmem] if hhactivage==1, sortvar(`sortvar')
+      local hhaa_`var'conc_`sortvar' = r(coeff)
+      }
+	foreach var2 in $incconcept{
+		forvalues num = 1/10 {
+			quietly sum `var' [w=hwgt*nhhmem] if decile_`var2'==`num'
+			local `var'_mean_`num'_`var2' = r(mean)
+			local `var'_min_`num'_`var2' = r(min)
+			local `var'_max_`num'_`var2' = r(max)
+    				      }			
+			            }
+   }
+  
+     if "`ccyy'" == "at04" di "countryyear,decile,inc1_mean_inc1,inc1_min_inc1,inc1_max_inc1...
+     di "`ccyy',D01,`inc1_mean_1_inc1',`inc1_min_1_inc1',`inc1_max_1_inc1'...
 ```
 This final part of the code may be divided into three parts. Firstly, the programs are run to impute and generate the relevant variables. Secondly, a range of summary statistics are calculated and recorded in the Stata memory. Lastly, the summary statistics are displayed in a format that makes it convenient to extract them from the text log file, which is sent via email.
 
@@ -230,7 +248,7 @@ The program calculates the following summary statistics:
 - Mean, miniumum, and maxium of each income variable at each decile
 - Mean, minimum, and maximum of taxes and transfers at each decile
 
-All of the above summary statistics use population weights to ensure the statistics are nationally representative. I analyse the missing values of each variable in each dataset by decile to determine if non-response may bias any of the results.
+All of the above summary statistics use population weights to ensure the statistics are nationally representative. We analyse the missing values of each variable in each dataset by decile to determine if non-response may bias any of the results.
 
 ### Converting the log file to a useful format
 
@@ -240,10 +258,8 @@ Once cleaned of the unnecessary characters, the data was copied to a Google Shee
 
 Finally, the spreadsheet is downloaded as comma separated values file (.csv) and imported into Stata. Variable labels are added and one new variable is created to convert the decile variable to numeric format.
 
-## Data sources
-Although I primarily used data from the Luxembourg Income Study, I also used additional data sources for certain imputations:
-- [OECD Taxing Wages](http://dx.doi.org/10.1787/tax_wages-2015-en) publications (1999 to 2015) provided statutory rates and ceiling for employer and employee social security contributions as well as income tax.
-- World Development Indicators database (WDI) provided PPP conversion rates.
+## Data sources for imputations
+Although we primarily used data from the Luxembourg Income Study, we also used the [OECD Taxing Wages](http://dx.doi.org/10.1787/tax_wages-2015-en) publications (1999 to 2015) to provide statutory rates and ceilings for employer and employee social security contributions.
 
 ## Terms of use for LIS data
 The terms of use for LIS data require research to be submitted to the LIS Working Paper series.
