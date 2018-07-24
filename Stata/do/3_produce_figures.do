@@ -1,8 +1,8 @@
 clear
 
-global data_dir "/Users/matthewolckers/repos/lis-tax-transfer"
+global data_dir "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
 * global data_dir C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\
-global output_dir "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
+global output_dir "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output/figures"
 
 cd $data_dir
 
