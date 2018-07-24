@@ -176,18 +176,7 @@ keep countryyear inc2_gini inc3_gini inc4_gini dhi_gini transshare ///
 
 
 
-**********Fig 2 ici on ne met que les cotisations pas les taxes sur la conso**************
-
-
-twoway (histogram Lisorig, color(gs12) xscale(range(.1 .7)) xlabel(#8) yscale(range(0 6)) ) ///
-       (histogram sharetax, fcolor(none) lcolor(black) xscale(range(.1 .7)) xlabel(#8) yscale(range(0 6)) ), ///
-       legend(order(1 "Before imputation" 2 "After imputation") ring(0) position(10) bmargin(large)) ///
-       xtitle(Percentage coverage of national tax revenue) ///
-       ytitle(Number of country-years)
-
-graph export "figure2.pdf", replace
-
-************Figure 3 Part des cotisations employeur et employés******
+************Figure 2 Part des cotisations employeur et employés******
 gen sscis=ssc if ccode=="is"
 replace sum=sscis if ccode=="is"
 
@@ -197,6 +186,17 @@ stack ytitle(Percentage of GDP) ///
 legend(order(1 "Employee contributions" 2 "Employer contributions" 2 "Social contributions (undistinct)") ring(0) position(2) bmargin(large)) ///
 bar(1,color(gs2)) bar(2,color(gs12))
 
+
+graph export "figure2.pdf", replace
+
+**********Fig 3 ici on ne met que les cotisations pas les taxes sur la conso**************
+
+
+twoway (histogram Lisorig, color(gs12) xscale(range(.1 .7)) xlabel(#8) yscale(range(0 6)) ) ///
+       (histogram sharetax, fcolor(none) lcolor(black) xscale(range(.1 .7)) xlabel(#8) yscale(range(0 6)) ), ///
+       legend(order(1 "Before imputation" 2 "After imputation") ring(0) position(10) bmargin(large)) ///
+       xtitle(Percentage coverage of national tax revenue) ///
+       ytitle(Number of country-years)
 
 graph export "figure3.pdf", replace
 
@@ -686,26 +686,57 @@ graph export "figureA2.pdf", replace
 
 /*********************EPL*************************/
 
-twoway (lfit hhaa_inc2_gini EPL) (scatter hhaa_inc2_gini EPL, mlabel(countryyear)) ///
- if zone==1, xtitle(EPL index (regular contracts)) ytitle(Market inequality)
+gen position_EPL = 3
+replace position_EPL = 12 if country=="Netherlands"
+replace position_EPL = 12 if country=="Denmark"
+replace position_EPL = 10 if country=="Slovak Republic"
+replace position_EPL = 8 if country=="Iceland"
+replace position_EPL = 9 if country=="Austria"
 
-
+twoway (lfit hhaa_inc2_gini EPL) ///
+(scatter hhaa_inc2_gini EPL, mlabel(country) mcolor(gs4) msymbol(o) mlabvpos(position_EPL)) ///
+ if zone==1, xtitle(EPL index (regular contracts)) ytitle(Market income inequality) ///
+ legend(off)
+ 
+ drop position_EPL
 graph export "EPL1.pdf", replace
 
+gen position_EPL = 3
+replace position_EPL = 12 if country=="Netherlands"
+replace position_EPL = 9 if country=="Denmark"
+replace position_EPL = 10 if country=="Slovak Republic"
+replace position_EPL = 9 if country=="Austria"
+replace position_EPL = 1 if country=="Norway"
+replace position_EPL = 9 if country=="Finland"
+replace position_EPL = 10 if country=="Estonia"
+replace position_EPL = 6 if country=="Austria"
+replace position_EPL = 5 if country=="Czech Republic"
 
-twoway (lfit hhaa_tax_kakwani EPL) (scatter hhaa_tax_kakwani EPL, mlabel(countryyear)) ///
+twoway (lfit hhaa_tax_kakwani EPL) ///
+(scatter hhaa_tax_kakwani EPL, mlabel(country) mcolor(gs4) msymbol(o) mlabvpos(position_EPL)) ///
  if zone==1, xtitle(EPL index (regular contracts)) ytitle(Tax progressivity) legend(off)
  
-graph save EPLa.gph,replace 
+graph export "EPL_tax.pdf", replace
+
+
+replace position_EPL = 6 if country=="Finland"
+replace position_EPL = 9 if country=="Israel"
+replace position_EPL = 6 if country=="Slovak Republic"
+replace position_EPL = 9 if country=="Iceland"
+replace position_EPL = 6 if country=="Norway"
+replace position_EPL = 3 if country=="Czech Republic"
+replace position_EPL = 9 if country=="Sweden"
+replace position_EPL = 5 if country=="Luxembourg"
+replace position_EPL = 4 if country=="Spain"
  
-twoway (lfit hhaa_transfer_kakwani EPL) (scatter hhaa_transfer_kakwani EPL, mlabel(countryyear)) ///
+twoway (lfit hhaa_transfer_kakwani EPL) ///
+(scatter hhaa_transfer_kakwani EPL, mlabel(country) mcolor(gs4) msymbol(o) mlabvpos(position_EPL)) ///
  if zone==1, xtitle(EPL index (regular contracts)) ytitle(Transfer targetting) legend(off) yscale(reverse)
+ 
+ drop position_EPL
 
-graph save EPLb.gph,replace 
 
-graph combine EPLa.gph EPLb.gph
-
-graph export "EPL tradeoff.pdf", replace
+graph export "EPL_targeting.pdf", replace
 
 /*
 ***************************************************************
