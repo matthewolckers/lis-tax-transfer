@@ -1,8 +1,8 @@
 clear
 
-global data_dir "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output"
+global data_dir "/home/m.olckers/U/lis-tax-transfer/Stata/output"
 * global data_dir C:\Users\zemmour\Documents\GitHub\lis-tax-transfer\
-global output_dir "/Users/matthewolckers/repos/lis-tax-transfer/Stata/output/figures"
+global output_dir "/home/m.olckers/U/lis-tax-transfer/Stata/output/figures"
 
 cd $data_dir
 
@@ -177,13 +177,13 @@ keep countryyear inc2_gini inc3_gini inc4_gini dhi_gini transshare ///
 
 
 ************Figure 2 Part des cotisations employeur et employés******
-gen sscis=ssc if ccode=="is"
-replace sum=sscis if ccode=="is"
 
-graph bar (asis) sscee sscem sscis if zone==1, ///
+* Iceland is left out because OECD data does not distinguish between employer
+* and employee contributions
+graph bar (asis) sscee sscem if zone==1 & country!="Iceland" , ///
 over(country, sort(sum) descending label(angle(forty_five))) ///
 stack ytitle(Percentage of GDP) ///
-legend(order(1 "Employee contributions" 2 "Employer contributions" 2 "Social contributions (undistinct)") ring(0) position(2) bmargin(large)) ///
+legend(order(2 "Employer contributions" 1 "Employee contributions") ring(0) position(2) bmargin(large)) ///
 bar(1,color(gs2)) bar(2,color(gs12))
 
 
@@ -448,7 +448,7 @@ twoway (lfit tax_kakwani taxshare, color(gs8)) ///
 twoway (lfit tax_kakwani taxshare, color(gs8)) ///
 (scatter tax_kakwani taxshare, msymbol(o) mcolor(gs12) ) ///
 (scatter tax_kakwani taxshare if zone==1, msymbol(o) mcolor(gs4) mlabel(country) mlabvpos(position_fig8)) ///
- ,  legend(off) ytitle("Tax progressivity") xtitle("Tax rate") 
+ ,  legend(off) ytitle("Tax progressivity") xtitle("Tax rate")
  
 drop position_fig8
 
@@ -557,7 +557,9 @@ gen position_fig8 = 3
 replace position_fig8 = 3 if country=="Australia"
 replace position_fig8 = 4 if country=="Austria"
 replace position_fig8 = 3 if country=="Norway"
+replace position_fig8 = 12 if country=="France"
 replace position_fig8 = 3 if country=="Luxembourg"
+replace position_fig8 = 2 if country=="Italy"
 replace position_fig8 = 9 if country=="Spain"
 replace position_fig8 = 6 if country=="Czech Republic"
 replace position_fig8 = 1 if country=="Netherlands"
@@ -568,16 +570,24 @@ replace position_fig8 = 9 if country=="Estonia"
 replace position_fig8 = 9 if country=="Denmark"
 replace position_fig8 = 12 if country=="Finland"
 replace position_fig8 = 12 if country=="Germany"
- 
+replace position_fig8 = 4 if country=="Sweden"
+replace position_fig8 = 1 if country=="United States"
+
+
+	* Note that I plot invisible points to ensure that figure8 and figure8_hhaa have the same axis scale
 twoway ///
-(lfit tax_kakwani taxshare) ///
+(lfit hhaa_tax_kakwani hhaa_taxshare, color(gs8)) ///
 (scatter hhaa_tax_kakwani hhaa_taxshare, msymbol(o) mcolor(gs12)) ///
+(scatter tax_kakwani taxshare, msymbol(i)) ///
 (scatter hhaa_tax_kakwani hhaa_taxshare if zone==1, msymbol(o) mcolor(gs4) mlabel(country) mlabvpos(position_fig8)) ///
- ,  legend(off) ytitle("Tax progressivity") xtitle("Tax rate") 
+ ,  legend(off) ytitle("Tax progressivity") xtitle("Tax rate")
  
 drop position_fig8
 
 graph export "figure8_hhaa.pdf", replace
+
+
+
 
 
 
