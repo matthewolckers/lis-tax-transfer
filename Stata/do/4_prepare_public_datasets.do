@@ -158,5 +158,5 @@ label variable most_recent_year "Indicator for the most recent year for each cou
 
 * Save data
 
-save "$repo_dir/public_data/DoTT.dta" , replace
-export delimited using "$repo_dir/public_data/DoTT.csv", replace
+save "$repo_dir/docs/public_data/DoTT.dta" , replace
+export delimited using "$repo_dir/docs/public_data/DoTT.csv", replace
