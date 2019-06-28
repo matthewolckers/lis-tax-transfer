@@ -39,6 +39,8 @@ replace most_recent_year=1 if countryyear=="ie07"
 
 drop *_SSE*
 
+drop inc*_conc_inc*
+
 drop ccode
 drop inc4_min_inc4
 
@@ -106,23 +108,6 @@ label var hhaa_tax_mean "Taxes and social security contributions"
 label var hhaa_allpension_mean "Public and private pensions"
 label var hhaa_pubpension_mean "Public pensions"
 label var hhaa_pripension_mean "Private pensions"
-
-label var inc1_conc_inc1 "Primary Income Concentration Coefficient (Primary Income)"
-label var inc1_conc_inc2 "Primary Income Concentration Coefficient (Market Income)"
-label var inc1_conc_inc3 "Primary Income Concentration Coefficient (Gross Income)"
-label var inc1_conc_inc4 "Primary Income Concentration Coefficient (Disposable Income)"
-label var inc2_conc_inc1 "Market Income Concentration Coefficient (Primary Income)"
-label var inc2_conc_inc2 "Market Income Concentration Coefficient (Market Income)"
-label var inc2_conc_inc3 "Market Income Concentration Coefficient (Gross Income)"
-label var inc2_conc_inc4 "Market Income Concentration Coefficient (Disposable Income)"
-label var inc3_conc_inc1 "Gross Income Concentration Coefficient (Primary Income)"
-label var inc3_conc_inc2 "Gross Income Concentration Coefficient (Market Income)"
-label var inc3_conc_inc3 "Gross Income Concentration Coefficient (Gross Income)"
-label var inc3_conc_inc4 "Gross Income Concentration Coefficient (Disposable Income)"
-label var inc4_conc_inc1 "Disposable Income Concentration Coefficient (Primary Income)"
-label var inc4_conc_inc2 "Disposable Income Concentration Coefficient (Market Income)"
-label var inc4_conc_inc3 "Disposable Income Concentration Coefficient (Gross Income)"
-label var inc4_conc_inc4 "Disposable Income Concentration Coefficient (Disposable Income)"
 
 label var allpension_conc_inc1 "Pension Concentation Coefficient (Primary Income)"
 label var allpension_conc_inc2 "Pension Concentation Coefficient (Market Income)"
