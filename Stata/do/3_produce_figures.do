@@ -56,11 +56,11 @@ gen SSCeeLvL=hxits_mean/inc4_mean
 
 /*variable Kakwani pour les cotisations sociales*/
 
-gen SSC_kakwani=hsscconc_inc3-inc3_gini
+gen SSC_kakwani=hssc_conc_inc3-inc3_gini
 replace SSC_kakwani=0 if SSCshare==0
-gen SSCer_kakwani=hsscerconc_inc3-inc3_gini
+gen SSCer_kakwani=hsscer_conc_inc3-inc3_gini
 replace SSCer_kakwani=0 if SSCershare==0
-gen SSCee_kakwani=hxitsconc_inc3-inc3_gini
+gen SSCee_kakwani=hxits_conc_inc3-inc3_gini
 gen kakwani_pension= pubpension_conc_inc2-inc2_gini
 
 gen tax_kakwani = tax_conc_inc3 - inc3_gini
@@ -833,11 +833,11 @@ gen SSCeeLvL=hxits_mean/inc4_mean
 
 /*variable Kakwani pour les cotisations sociales*/
 
-gen SSC_kakwani=hsscconc_inc3-inc3_gini
+gen SSC_kakwani=hssc_conc_inc3-inc3_gini
 replace SSC_kakwani=0 if SSCshare==0
-gen SSCer_kakwani=hsscerconc_inc3-inc3_gini
+gen SSCer_kakwani=hsscer_conc_inc3-inc3_gini
 replace SSCer_kakwani=0 if SSCershare==0
-gen SSCee_kakwani=hxitsconc_inc3-inc3_gini
+gen SSCee_kakwani=hxits_conc_inc3-inc3_gini
 gen kakwani_pension= pubpension_conc_inc2-inc2_gini
 
 gen tax_kakwani = tax_conc_inc3 - inc3_gini
@@ -972,11 +972,11 @@ gen SSCeeLvL=hxits_mean/inc4_mean
 
 /*variable Kakwani pour les cotisations sociales*/
 
-gen SSC_kakwani=hsscconc_inc3-inc3_gini
+gen SSC_kakwani=hssc_conc_inc3-inc3_gini
 replace SSC_kakwani=0 if SSCshare==0
-gen SSCer_kakwani=hsscerconc_inc3-inc3_gini
+gen SSCer_kakwani=hsscer_conc_inc3-inc3_gini
 replace SSCer_kakwani=0 if SSCershare==0
-gen SSCee_kakwani=hxitsconc_inc3-inc3_gini
+gen SSCee_kakwani=hxits_conc_inc3-inc3_gini
 gen kakwani_pension= pubpension_conc_inc2-inc2_gini
 
 gen tax_kakwani = tax_conc_inc3 - inc3_gini

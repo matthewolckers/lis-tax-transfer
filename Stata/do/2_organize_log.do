@@ -141,11 +141,11 @@ label variable hsscee_mean "Employee Social Security Contributions (Imputed)"
 label variable hsscer_mean "Employer Social Security Contributions (Imputed)"
 label variable hssc_mean "Social Security Contributions (Imputed)"
 
-label variable hxitsconc_inc3 "Social Security Contributions"
-label variable hssceeconc_inc3 "Employee Social Security Contributions"
-label variable hssceeconc_inc3 "Employee Social Security Contributions (Imputed)"
-label variable hsscerconc_inc3 "Employer Social Security Contributions (Imputed)"
-label variable hsscconc_inc3 "Social Security Contributions (Imputed)"
+label variable hxits_conc_inc3 "Social Security Contributions"
+label variable hsscee_conc_inc3 "Employee Social Security Contributions"
+label variable hsscee_conc_inc3 "Employee Social Security Contributions (Imputed)"
+label variable hsscer_conc_inc3 "Employer Social Security Contributions (Imputed)"
+label variable hssc_conc_inc3 "Social Security Contributions (Imputed)"
 
 save "LIS Reducing Inequality Country.dta", replace
 
