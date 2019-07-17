@@ -13,8 +13,8 @@
 # you will see them accessed via {{ site.title }}, {{ site.github_repo }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: DoTT
-description: Data on taxes and transfers for social science researchers.
+title: ReData
+description: Data on  redistribution (taxes, transfers and inequality) for social science researchers.
 # baseurl: "/lis-tax-transfer/docs" # the subpath of your site, e.g. /blog
 # url: "https://www.matthewolckers.com" # the base hostname & protocol for your site, e.g. http://example.com
 # theme: "just-the-docs"

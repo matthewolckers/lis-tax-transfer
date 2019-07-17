@@ -2,43 +2,56 @@
 layout: default
 title: Home
 nav_order: 1
-description: "Data on taxes and transfers for social science researchers."
+description: "Data on taxes, transfers and inequality for social science researchers."
 permalink: /
 ---
 
-# Data on Taxes and Transfers
+# Data on Redistribution
 {: .fs-9 }
 
-We calculated tax, transfer and inequality measures for 22 countries using the Luxembourg Income Study (LIS) database. Most importantly, <mark style="background-color: #FFFF98">we imputed employer social security contributions</mark> to provide a more accurate measure of taxes. The data is available for your use.
-{: .fs-6 .fw-300 }
+We calculated tax, transfer and inequality measures for 22 countries using the Luxembourg Income Study (LIS) database. Most importantly, <mark style="background-color: #FFFF98">we imputed employer social security contributions</mark> to provide a more accurate measure of taxes. The data includes:
+{: .fs-5 .fw-300 }
+- Gini indexes of inequality, both before and after taxes and transfers;
+- average tax and transfer rates;
+- and measures of the progressivity of taxes and transfers.
+{: .fs-5 .fw-300 }
 
 [Download .dta](public_data/DoTT.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/DoTT.csv){: .btn .fs-5 .mb-4 .mb-md-0 }
 
-
 ---
 
-<canvas id="myChart"></canvas>
+<canvas id="Chart1"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script>
-var ctx = document.getElementById('myChart').getContext('2d');
-var myChart = new Chart(ctx, {
+var ctx = document.getElementById('Chart1').getContext('2d');
+var Chart1 = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Denmark','Sweden','Netherlands','Austria','Iceland','Slovak Republic','Italy','Greece','Luxembourg','Spain','Canada','Norway','Finland','Germany','United States','France','Estonia','Czech Republic','Australia','United Kingdom','Israel','Ireland'],
+        labels: ['Israel','United States','Estonia','Spain','Greece','Australia','United Kingdom','Canada','Italy','Ireland','Germany','France','Austria','Luxembourg','Slovak Republic','Netherlands','Czech Republic','Finland','Denmark','Iceland','Norway','Sweden'],
         datasets: [{
-            label: 'Kakwani index of tax progressivity',
-            data: [0.077503 ,0.0973947 ,0.0984367 ,0.1041686 ,0.1068879 ,0.1080925 ,0.1133034 ,0.1169652 ,0.1171474 ,0.118849 ,0.1204064 ,0.1214598 ,0.1238587 ,0.1367677 ,0.1391912 ,0.1437898 ,0.1472755 ,0.1523037 ,0.1860332 ,0.1899157 ,0.1949978 ,0.2340027],
-            hoverBackgroundColor:'rgba(255, 99, 132, 0.2)',
-            hoverBorderColor:'rgba(255, 99, 132, 1)',
-            borderWidth: 1
-        }]
+                    label: 'Inequality after taxes and transfers',
+                    data:[0.3928,0.3880,0.3597,0.3460,0.3453,0.3373,0.3351,0.3225,0.3225,0.3056,0.3000,0.2935,0.2861,0.2816,0.2721,0.2687,0.2665,0.2640,0.2573,0.2545,0.2500,0.2437],
+                    hoverBackgroundColor:'rgba(153, 0, 0, 0.4)',
+                    hoverBorderColor:'rgba(153, 0, 0, 1)',
+                    borderWidth: 1},
+                    {label: 'Reduction in inequality due to redistribution',
+                    data:[0.0797,0.0678,0.0704,0.0745,0.0576,0.0876,0.1336,0.0794,0.0760,0.1579,0.1012,0.1146,0.0856,0.0786,0.0587,0.0935,0.0841,0.1093,0.0936,0.0776,0.0850,0.1186],
+                    backgroundColor:'rgba(189, 189, 189, 0.1)',
+                    borderColor:'rgba(189, 189, 189, 1)',
+                    hoverBackgroundColor:'rgba(255, 99, 132, 0.2)',
+                    hoverBorderColor:'rgba(255, 99, 132, 1)',                    
+                    borderWidth: 1}]
     },
     options: {
         scales: {
+            xAxes: [{
+              stacked: true
+              }],
             yAxes: [{
                 ticks: {
                     beginAtZero: true
-                }
+                },
+                stacked: true
             }]
         }
     }
@@ -65,9 +78,11 @@ This data is part of research project on tax and transfer systems by [Elvire Gui
 ## Documentation
 
 - [Description](/description)
-  - [Codebook](/description/codebook)
-  - [Countries](/description/countries)
+- [Codebook](/codebook)
+- [Countries](/countries)
 
 ---
+
+This project received funding and support from [LIEPP Sciences Po](https://www.sciencespo.fr/liepp/en) and [EN3S](https://en3s.fr/en/).
 
 <img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="400" margin-left="auto" margin-right="auto" display="block" /> <img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="200" margin-left="auto" margin-right="auto" display="block" />
