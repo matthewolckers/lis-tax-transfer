@@ -16,7 +16,7 @@ We calculated tax, transfer and inequality measures for 22 countries using the L
 - and measures of the progressivity of taxes and transfers.
 {: .fs-5 .fw-300 }
 
-[Download .dta](public_data/redistribution_data.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/redistribution_data..csv){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Download .dta](public_data/redistribution_data.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/redistribution_data.csv){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
