@@ -15,8 +15,8 @@
 # in the templates via {{ site.myvariable }}.
 title: RedIneq
 description: Data on  redistribution (taxes, transfers and inequality) for social science researchers.
-# baseurl: "/lis-tax-transfer/docs" # the subpath of your site, e.g. /blog
-# url: "https://www.matthewolckers.com" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/lis-tax-transfer" # the subpath of your site, e.g. /blog
+url: "https://www.matthewolckers.com" # the base hostname & protocol for your site, e.g. http://example.com
 # theme: "just-the-docs"
 remote_theme: pmarsceill/just-the-docs
 
