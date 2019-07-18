@@ -2,12 +2,26 @@
 layout: default
 title: Home
 nav_order: 1
-description: "Data on taxes, transfers and inequality for social science researchers."
+description: "Data on redistribution (taxes, transfers and inequality) for social science researchers."
 permalink: /
 ---
 
-# Data on Redistribution
+# Data on Reducing Inequality
 {: .fs-9 }
+
+
+
+Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and <mark style="background-color: #FFFF98">imputed missing tax data (employer social security contributions, from OECD’s Taxing Wages series). With this dataset, you can easily compute reduction in inequality due to taxes, and due to transfers, over a wide range of countries in a comparative manner. Moreover, the contribution of the four key levers of tax and transfer systems can be decomposed: the average tax rate, tax progressivity, the average transfer rate, and transfer targeting.
+
+The data includes:
+
+            * Gini indices of inequality, both before and after taxes and/or transfers;
+
+            * Average tax and transfer rates;
+
+            * Progressivity of taxes and transfers.
+
+
 
 We calculated tax, transfer and inequality measures for 22 countries using the Luxembourg Income Study (LIS) database. Most importantly, <mark style="background-color: #FFFF98">we imputed employer social security contributions</mark> to provide a more accurate measure of taxes. The data includes:
 {: .fs-5 .fw-300 }
@@ -39,7 +53,7 @@ var Chart1 = new Chart(ctx, {
                     backgroundColor:'rgba(189, 189, 189, 0.1)',
                     borderColor:'rgba(189, 189, 189, 1)',
                     hoverBackgroundColor:'rgba(255, 99, 132, 0.2)',
-                    hoverBorderColor:'rgba(255, 99, 132, 1)',                    
+                    hoverBorderColor:'rgba(255, 99, 132, 1)',
                     borderWidth: 1}]
     },
     options: {
@@ -73,17 +87,17 @@ Our data is extracted from nationally representative household surveys, harmoniz
 
 This data is part of research project on tax and transfer systems by [Elvire Guillaud](https://sites.google.com/site/elvireguillaud/), [Matthew Olckers](http://www.matthewolckers.com/) and [Michaël Zemmour](https://sites.google.com/site/mzemmour/home). Elvire and Michaël have a research agenda focusing on redistribution, which includes this project and several others.
 
-[Victor Amoureux](https://fr.linkedin.com/in/victor-amoureux-54579194) contributed extensively to [the code](https://github.com/matthewolckers/lis-tax-transfer).   
+[Victor Amoureux](https://fr.linkedin.com/in/victor-amoureux-54579194) contributed extensively to [the code](https://github.com/matthewolckers/lis-tax-transfer).
 
 
 ## Documentation
 
-- [Description](/description)
-- [Codebook](/codebook)
-- [Countries](/countries)
+- [Description](description.md)
+- [Codebook](codebook.md)
+- [Countries](countries.md)
 
 ---
 
 This project received funding and support from [LIEPP Sciences Po](https://www.sciencespo.fr/liepp/en) and [EN3S](https://en3s.fr/en/).
 
-<img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="300" margin-left="auto" margin-right="auto" display="block" /> <img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="150" margin-left="auto" margin-right="auto" display="block" />
+<a href="https://www.sciencespo.fr/liepp/en"><img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="300" margin-left="auto" margin-right="auto" display="block" /></a> <a href="https://en3s.fr/en/"><img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="150" margin-left="auto" margin-right="auto" display="block" /></a>
