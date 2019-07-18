@@ -2,6 +2,7 @@
 .DS_Store
 ## Figures for the paper
 Stata/output/figures/*
-## Mac files
+## Jekyll files
 docs/Gemfile
 docs/Gemfile.lock
+docs/_site/*
