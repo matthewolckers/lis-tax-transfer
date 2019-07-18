@@ -11,24 +11,11 @@ permalink: /
 
 
 
-Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and <mark style="background-color: #FFFF98">imputed missing tax data (employer social security contributions, from OECD’s Taxing Wages series). With this dataset, you can easily compute reduction in inequality due to taxes, and due to transfers, over a wide range of countries in a comparative manner. Moreover, the contribution of the four key levers of tax and transfer systems can be decomposed: the average tax rate, tax progressivity, the average transfer rate, and transfer targeting.
-
-The data includes:
-
-            * Gini indices of inequality, both before and after taxes and/or transfers;
-
-            * Average tax and transfer rates;
-
-            * Progressivity of taxes and transfers.
-
-
-
-We calculated tax, transfer and inequality measures for 22 countries using the Luxembourg Income Study (LIS) database. Most importantly, <mark style="background-color: #FFFF98">we imputed employer social security contributions</mark> to provide a more accurate measure of taxes. The data includes:
+Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and <mark style="background-color: #FFFF98">imputed missing tax data</mark>. This data can be used to compare the reduction in inequality due to taxes and transfers across countries and time. The also data includes:
 {: .fs-5 .fw-300 }
-- Gini indexes of inequality, both before and after taxes and transfers;
-- average tax and transfer rates;
-- and measures of the progressivity of taxes and transfers.
-{: .fs-5 .fw-300 }
+- Gini indices of inequality, both before and after taxes and transfers,
+- average tax and transfer rates,
+- measures of the progressivity of taxes and transfers.
 
 [Download .dta](public_data/redistribution_data.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/redistribution_data.csv){: .btn .fs-5 .mb-4 .mb-md-0 }
 
@@ -77,7 +64,8 @@ var Chart1 = new Chart(ctx, {
 
 If you use the data for your research, please cite:
 
-> Guillaud, E., Olckers, M., & Zemmour, M. (Forthcoming). [Four levers of redistribution: The impact of tax and transfer systems on inequality reduction](https://rdcu.be/bgJQs). ***Review of Income and Wealth***.
+> Guillaud, E., Olckers, M., & Zemmour, M. (Forthcoming). Four levers of redistribution: The impact of tax and transfer systems on inequality reduction. ***Review of Income and Wealth***. DOI: [10.1111/roiw.12408
+](https://rdcu.be/bgJQs)
 
 ## Sources
 
