@@ -6,3 +6,4 @@ Stata/output/figures/*
 docs/Gemfile
 docs/Gemfile.lock
 docs/_site/*
+docs\_site\*
