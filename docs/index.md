@@ -6,12 +6,12 @@ description: "Data on redistribution (taxes, transfers and inequality) for socia
 permalink: /
 ---
 
-# Data on Reducing Inequality
+# Data on REDucing INEQuality
 {: .fs-9 }
 
 
 
-Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and <mark style="background-color: #FFFF98">imputed missing tax data</mark>. This data can be used to compare the reduction in inequality due to taxes and transfers across countries and time. The also data includes:
+Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and we imputed missing tax data. <mark style="background-color: #FFFF98">You may use the data to compare the reduction in inequality due to taxes and transfers across countries and time.</mark> The data also includes:
 {: .fs-5 .fw-300 }
 - Gini indices of inequality, both before and after taxes and transfers,
 - average tax and transfer rates,
