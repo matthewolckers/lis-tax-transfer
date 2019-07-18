@@ -39,14 +39,14 @@ All statistics are calculated at the individual level. We first calculate the me
 | inc4 | Disposable income | Gross income - income taxation and social security contribution (employer and employee) |
 | dhi | Disposable income | The survey measure available in the LIS database. |
 
-### Other measures
+### Tax, transfer and pension measures
 
 In addition to income, we also calculate summary statistics of the following concepts:
 
 | Variable name | Concept | LIS variables |
 |----|----|----|
-| tax | Taxes | `hxit + hsscer` |
-| transfer | Transfers | `hits - pubpension` |
+| tax | Income tax, employee and employer social security contributions | `hxit + hsscer` |
+| transfer | All monetary social transfers from government but excluding pensions | `hits - pubpension` |
 | allpension | Pensions | `pension - hitsap` |
 | pubpension | Public pensions | `hitsil + hitsup` |
 | pripension | Private pensions | `hicvip` |
@@ -63,21 +63,20 @@ We define working-age households as those whose household head is between 25 and
 
 ## Details on the summary statistics
 
-In progress
-{: .label .label-yellow }
-
 ### Weighted mean
 
 We estimate the population mean of a variable by weighting the sample mean with weights provided in each household survey. The weights are calculated to match the sample with the population.
 
 ### Gini coefficient
 
-The Gini coefficient is a standardized measure of inequality which ranges from 0 to 1. Perfect equality has Gini coefficient of 0 and the most extreme level of inequality (where one person has everything and everyone else has nothing) has a Gini coefficient of 1.
+The Gini coefficient is a standardized measure of inequality which ranges from 0 to 1. Perfect equality has Gini coefficient of 0 and the most extreme level of inequality (where one person has everything and everyone else has nothing) has a Gini coefficient of 1. You can read more details on the Gini coefficient [here](https://en.wikipedia.org/wiki/Gini_coefficient).
 
 ### Concentration index
 
-The concentration index summarizes the distribution of a variable over households, ranked by household income. The index ranges from -1 to 1.
+The concentration index summarizes the distribution of a variable over households, ranked by household income. The index ranges from -1 to 1. For example, if were studying the distribution of taxes, the concentration index is equal to one if the household with the largest income paid all the taxes. The concentration index is -1 if the household with the smallest income paid all the taxes.
 
 ### Kakwani index
 
-The Kakwani index is the difference between the concentration index and the Gini index. The Kakwani index corrects the concentration index for the initial level of inequality.
+The Kakwani index is the difference between the concentration index and the Gini index. The Kakwani index corrects the concentration index for the initial level of inequality. Intuitively, the Kakwani index measures the distance from proportionality. If the Kakwani index is equal to zero then the variable is distributed proportionally to income.
+
+The index ranges from −1−Gini to 1−Gini. For transfers, the lower the Kakwani index, the higher is the rate at which transfers fall as income rises. The transfer system redistributes from rich to poor when the index is negative. For taxes, the higher the Kakwani index, the higher is the rate at which tax rises as income rises. The tax system redistributes from rich to poor when this index is positive.

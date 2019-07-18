@@ -16,7 +16,7 @@ We calculated tax, transfer and inequality measures for 22 countries using the L
 - and measures of the progressivity of taxes and transfers.
 {: .fs-5 .fw-300 }
 
-[Download .dta](public_data/DoTT.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/DoTT.csv){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Download .dta](public_data/redistribution_data.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/redistribution_data..csv){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
@@ -44,6 +44,7 @@ var Chart1 = new Chart(ctx, {
     },
     options: {
         scales: {
+            minBarLength: 100,
             xAxes: [{
               stacked: true
               }],
@@ -85,4 +86,4 @@ This data is part of research project on tax and transfer systems by [Elvire Gui
 
 This project received funding and support from [LIEPP Sciences Po](https://www.sciencespo.fr/liepp/en) and [EN3S](https://en3s.fr/en/).
 
-<img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="400" margin-left="auto" margin-right="auto" display="block" /> <img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="200" margin-left="auto" margin-right="auto" display="block" />
+<img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="300" margin-left="auto" margin-right="auto" display="block" /> <img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="150" margin-left="auto" margin-right="auto" display="block" />
