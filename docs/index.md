@@ -70,10 +70,14 @@ var Chart1 = new Chart(ctx, {
 
 ## Citation
 
-If you use the data for your research, please cite:
+If you use the data for your research, please cite the publication:
 
 > Guillaud, E., Olckers, M., & Zemmour, M. (Forthcoming). Four levers of redistribution: The impact of tax and transfer systems on inequality reduction. ***Review of Income and Wealth***. DOI: [10.1111/roiw.12408
 ](https://rdcu.be/bgJQs)
+
+and the dataset:
+
+> Guillaud, E., Olckers, M., & Zemmour, M. 2019. REDINEQ data. [www.redineq.com](//www.redineq.com) (accessed {{ site.time | date: '%B %d, %Y' }})
 
 ## Sources
 
