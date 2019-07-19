@@ -20,6 +20,7 @@ Our data on redistribution includes tax, transfer and inequality measures for 22
 
 <div class="chart-container">
 <canvas id="Chart1"></canvas>
+<p style="font-size: 0.75rem">Note: We display the most recent year for each country, which is between 2010 and 2016 with two exceptions. For Ireland, we use the pre‐crisis year of 2007 and the most recent year for Sweden is 2005.</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script>
@@ -27,24 +28,24 @@ var ctx = document.getElementById('Chart1').getContext('2d');
 var Chart1 = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Sweden','Finland','Germany','Denmark','United Kingdom','France','Greece','Austria','Ireland','Netherlands','Czech Republic','Norway','Luxembourg','Spain','Estonia','Italy','Slovak Republic','Canada','Australia','Iceland','Israel','United States'],
+        labels: ['Ireland','Sweden','United Kingdom','Germany','Finland','France','Czech Republic','Denmark','Norway','Netherlands','Estonia','Austria','Australia','Slovak Republic','Greece','Italy','Spain','Iceland','Canada','Israel','Luxembourg','United States'],
         datasets: [{
                     label: 'Pensions',
-                    data:[0.1209,0.1245,0.1298,0.1340,0.0916,0.1076,0.1629,0.1265,0.0528,0.1158,0.1195,0.1158,0.1190,0.1044,0.0991,0.0927,0.0986,0.0753,0.0648,0.0721,0.0602,0.0666],
+                    data:[0.0303,0.0667,0.0451,0.0759,0.0667,0.0577,0.0865,0.0732,0.0635,0.0539,0.0745,0.0569,0.0471,0.0675,0.0678,0.0445,0.0455,0.0399,0.0351,0.0292,0.0295,0.0324],
                     backgroundColor:'rgba(217,217,217, 0.8)',
                     borderColor:'rgba(217,217,217, 1)',
                     hoverBackgroundColor:'rgba(254,224,210, 1)',
                     hoverBorderColor:'rgba(254,224,210, 1)',                    
                     borderWidth: 1},
                     {label: 'Transfers',
-                    data:[0.0556,0.0480,0.0364,0.0580,0.0841,0.0424,0.0127,0.0339,0.0970,0.0386,0.0208,0.0316,0.0400,0.0329,0.0121,0.0103,0.0190,0.0429,0.0451,0.0328,0.0327,0.0217],
+                    data:[0.0970,0.0556,0.0841,0.0364,0.0480,0.0424,0.0208,0.0580,0.0316,0.0386,0.0121,0.0339,0.0451,0.0190,0.0127,0.0103,0.0329,0.0328,0.0429,0.0327,0.0400,0.0217],
                     backgroundColor:'rgba(189, 189, 189, 0.8)',
                     borderColor:'rgba(189, 189, 189, 1)',
                     hoverBackgroundColor:'rgba(252,146,114, 1)',
                     hoverBorderColor:'rgba(252,146,114, 1)',
                     borderWidth: 1},
                     {label: 'Tax',
-                    data:[0.0630,0.0614,0.0647,0.0356,0.0494,0.0723,0.0449,0.0517,0.0609,0.0549,0.0633,0.0534,0.0386,0.0416,0.0583,0.0657,0.0397,0.0366,0.0425,0.0448,0.0470,0.0462],
+                    data:[0.0609,0.0630,0.0494,0.0647,0.0614,0.0723,0.0633,0.0356,0.0534,0.0549,0.0583,0.0517,0.0425,0.0397,0.0449,0.0657,0.0416,0.0448,0.0366,0.0470,0.0386,0.0462],
                     backgroundColor:'rgba(99, 99, 99, 0.8)',
                     borderColor:'rgba(99, 99, 99, 1)',
                     hoverBackgroundColor:'rgba(222,45,38, 1)',
@@ -77,7 +78,7 @@ If you use the data for your research, please cite the publication:
 
 and the dataset:
 
-> Guillaud, E., Olckers, M., & Zemmour, M. 2019. REDINEQ data. [www.redineq.com](//www.redineq.com) (accessed {{ site.time | date: '%B %d, %Y' }})
+> Guillaud, E., Olckers, M., & Zemmour, M. 2019. REDINEQ data (version: {{ site.time | date: '%B, %Y' }}). [www.redineq.com](//www.redineq.com)
 
 ## Sources
 
