@@ -28,8 +28,8 @@ search_enabled: true
 
 # Aux links for the upper right navigation
 aux_links:
-  "Report an error":
-    - "//github.com/matthewolckers/lis-tax-transfer/issues"
+  "Access the code":
+    - "//github.com/matthewolckers/lis-tax-transfer"
 
 # Color scheme currently only supports "dark" or nil (default)
 color_scheme: nil
