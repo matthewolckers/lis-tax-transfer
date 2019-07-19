@@ -11,45 +11,53 @@ permalink: /
 
 
 
-Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and we imputed missing tax data. <mark style="background-color: #FFFF98">You may use the data to compare the reduction in inequality due to taxes and transfers across countries and time.</mark> The data also includes:
+Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and we imputed missing tax data. <mark style="background-color: #FFFF98">You may use the data to compare the reduction in inequality due to taxes and transfers across countries and time.</mark> The data also includes measures of the progressivity and average rate of taxes and transfers so you can compare how each country delivers redistribution.
 {: .fs-5 .fw-300 }
-- Gini indices of inequality, both before and after taxes and transfers,
-- average tax and transfer rates,
-- measures of the progressivity of taxes and transfers.
 
 [Download .dta](public_data/redistribution_data.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/redistribution_data.csv){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
+<div class="chart-container">
 <canvas id="Chart1"></canvas>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script>
 var ctx = document.getElementById('Chart1').getContext('2d');
 var Chart1 = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Israel','United States','Estonia','Spain','Greece','Australia','United Kingdom','Canada','Italy','Ireland','Germany','France','Austria','Luxembourg','Slovak Republic','Netherlands','Czech Republic','Finland','Denmark','Iceland','Norway','Sweden'],
+        labels: ['Sweden','Finland','Germany','Denmark','United Kingdom','France','Greece','Austria','Ireland','Netherlands','Czech Republic','Norway','Luxembourg','Spain','Estonia','Italy','Slovak Republic','Canada','Australia','Iceland','Israel','United States'],
         datasets: [{
-                    label: 'Inequality after taxes and transfers',
-                    data:[0.3928,0.3880,0.3597,0.3460,0.3453,0.3373,0.3351,0.3225,0.3225,0.3056,0.3000,0.2935,0.2861,0.2816,0.2721,0.2687,0.2665,0.2640,0.2573,0.2545,0.2500,0.2437],
-                    hoverBackgroundColor:'rgba(153, 0, 0, 0.4)',
-                    hoverBorderColor:'rgba(153, 0, 0, 1)',
+                    label: 'Pensions',
+                    data:[0.1209,0.1245,0.1298,0.1340,0.0916,0.1076,0.1629,0.1265,0.0528,0.1158,0.1195,0.1158,0.1190,0.1044,0.0991,0.0927,0.0986,0.0753,0.0648,0.0721,0.0602,0.0666],
+                    backgroundColor:'rgba(217,217,217, 0.8)',
+                    borderColor:'rgba(217,217,217, 1)',
+                    hoverBackgroundColor:'rgba(254,224,210, 1)',
+                    hoverBorderColor:'rgba(254,224,210, 1)',                    
                     borderWidth: 1},
-                    {label: 'Reduction in inequality due to redistribution',
-                    data:[0.0797,0.0678,0.0704,0.0745,0.0576,0.0876,0.1336,0.0794,0.0760,0.1579,0.1012,0.1146,0.0856,0.0786,0.0587,0.0935,0.0841,0.1093,0.0936,0.0776,0.0850,0.1186],
-                    backgroundColor:'rgba(189, 189, 189, 0.1)',
+                    {label: 'Transfers',
+                    data:[0.0556,0.0480,0.0364,0.0580,0.0841,0.0424,0.0127,0.0339,0.0970,0.0386,0.0208,0.0316,0.0400,0.0329,0.0121,0.0103,0.0190,0.0429,0.0451,0.0328,0.0327,0.0217],
+                    backgroundColor:'rgba(189, 189, 189, 0.8)',
                     borderColor:'rgba(189, 189, 189, 1)',
-                    hoverBackgroundColor:'rgba(255, 99, 132, 0.2)',
-                    hoverBorderColor:'rgba(255, 99, 132, 1)',
+                    hoverBackgroundColor:'rgba(252,146,114, 1)',
+                    hoverBorderColor:'rgba(252,146,114, 1)',
+                    borderWidth: 1},
+                    {label: 'Tax',
+                    data:[0.0630,0.0614,0.0647,0.0356,0.0494,0.0723,0.0449,0.0517,0.0609,0.0549,0.0633,0.0534,0.0386,0.0416,0.0583,0.0657,0.0397,0.0366,0.0425,0.0448,0.0470,0.0462],
+                    backgroundColor:'rgba(99, 99, 99, 0.8)',
+                    borderColor:'rgba(99, 99, 99, 1)',
+                    hoverBackgroundColor:'rgba(222,45,38, 1)',
+                    hoverBorderColor:'rgba(222,45,38, 1)',
                     borderWidth: 1}]
     },
     options: {
         scales: {
-            minBarLength: 100,
             xAxes: [{
               stacked: true
               }],
             yAxes: [{
+                scaleLabel: {display: true, labelString: 'Reduction of inequality (Gini points)'},
                 ticks: {
                     beginAtZero: true
                 },

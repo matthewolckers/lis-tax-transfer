@@ -119,3 +119,8 @@ $btn-primary-color: $red-000;
 //   lg: 800px,
 //   xl: 1316px
 // );
+@media (max-width: 800px) {
+  .chart-container {
+   display: none;
+}
+}
