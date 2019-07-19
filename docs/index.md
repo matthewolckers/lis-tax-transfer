@@ -94,6 +94,6 @@ This data is part of research project on tax and transfer systems by [Elvire Gui
 
 ---
 
-This project received funding and support from [LIEPP Sciences Po](https://www.sciencespo.fr/liepp/en) and [EN3S](https://en3s.fr/en/).
+This project received funding and support from [LIEPP Sciences Po](https://www.sciencespo.fr/liepp/en) and [EN3S](https://en3s.fr/en/). We thank Silvia Avram, Thomas Breda, Laurent Caussat, Marie-Cécile Cazenave, Conchita D’Ambrosio, Bernhard Ebbinghaus, Jörg Neugschwender, Bruno Palier, and Denisa Solognon for useful discussions about the data and methodology.
 
-<a href="https://www.sciencespo.fr/liepp/en"><img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="300" margin-left="auto" margin-right="auto" display="block" /></a> <a href="https://en3s.fr/en/"><img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="150" margin-left="auto" margin-right="auto" display="block" /></a>
+<img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="300"/> <img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="150"  />
