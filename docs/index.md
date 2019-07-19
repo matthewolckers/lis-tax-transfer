@@ -11,7 +11,7 @@ permalink: /
 
 
 
-Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and we imputed missing tax data. <mark style="background-color: #FFFF98">You may use the data to compare the reduction in inequality due to taxes and transfers across countries and time.</mark> The data also includes measures of the progressivity and average rate of taxes and transfers so you can compare how each country delivers redistribution.
+Our data on redistribution includes tax, transfer and inequality measures for 22 countries over the 1999-2016 period. We used household surveys harmonized by the Luxembourg Income Study (LIS) and we imputed missing tax data. <mark style="background-color: #FEE5D9">You may use the data to compare the reduction in inequality due to taxes and transfers across countries and time.</mark> The data also includes measures of the progressivity and average rate of taxes and transfers so you can compare how each country delivers redistribution.
 {: .fs-5 .fw-300 }
 
 [Download .dta](public_data/redistribution_data.dta){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [Download .csv](public_data/redistribution_data.csv){: .btn .fs-5 .mb-4 .mb-md-0 }
@@ -94,6 +94,6 @@ This data is part of research project on tax and transfer systems by [Elvire Gui
 
 ---
 
-This project received funding and support from [LIEPP Sciences Po](https://www.sciencespo.fr/liepp/en) and [EN3S](https://en3s.fr/en/). We thank Silvia Avram, Thomas Breda, Laurent Caussat, Marie-Cécile Cazenave, Conchita D’Ambrosio, Bernhard Ebbinghaus, Jörg Neugschwender, Bruno Palier, and Denisa Solognon for useful discussions about the data and methodology.
+This project received funding and support from [LIEPP Sciences Po](https://www.sciencespo.fr/liepp/en) and [EN3S](https://en3s.fr/en/). We thank Silvia Avram, Thomas Breda, Laurent Caussat, Marie-Cécile Cazenave, Conchita D’Ambrosio, Bernhard Ebbinghaus, Jörg Neugschwender, Bruno Palier, and Denisa Solognon for useful discussions about the data and methodology. We are also grateful to the LIS team for answering our questions about the data.
 
 <img src="assets/img/liepp.png" alt="LIEPP" title="Sciences Po, Le Laboratoire Interdisciplinaire d'Evaluation des Politiques Publiques" width="300"/> <img src="assets/img/en3s-web.jpg" alt="EN3S" title="L'Ecole nationale supérieure de Sécurité sociale" width="150"  />
