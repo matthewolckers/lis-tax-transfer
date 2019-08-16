@@ -110,6 +110,11 @@ program define activage_household
 	replace headactivage=0 if headactivage!=1
 	bys hid: egen hhactivage=total(headactivage)
 	drop headactivage
+	*create a dummy variable taking 1 if all household members are younger than 60
+	gen undersixty=0 if age!=.
+	replace undersixty=1 if age<60
+	bys hid: egen hhundersixty=max(undersixty)
+	drop undersixty
 end
 
 program define gen_pvars
@@ -165,7 +170,7 @@ program define NET_gen_pvars
     *create household activ age dummy*
   activage_household
   * Keep only household level SSC and household id
-  keep hid hsscee hsscer hxiti hhactivage
+  keep hid hsscee hsscer hxiti hhactivage hhundersixty
   drop if hid==.
   duplicates drop hid, force
 end
@@ -319,6 +324,7 @@ program define inc_and_pctile
   foreach var in $incconcept{
   xtile pctile_`var' = `var' [w=hwgt*nhhmem], nquantiles(100) // already corrected for household size by ppp_equiv
   xtile hhaa_pctile_`var' = `var' [w=hwgt*nhhmem] if hhactivage==1, nquantiles(100) // already corrected for household size by ppp_equiv
+	xtile hh60_pctile_`var' = `var' [w=hwgt*nhhmem] if hhundersixty==1, nquantiles(100)
 }
 
 end
@@ -378,7 +384,7 @@ pensions, a subcategory of assistance benefits) out of transfers, and into
 pensions.  */
 
 program define fix_pensions_type3
-  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE pctile_inc1 pctile_inc2 pctile_inc3 pctile_inc4 pctile_inc3_SSER pctile_inc3_SSEE hhaa_pctile_inc1 hhaa_pctile_inc2 hhaa_pctile_inc3 hhaa_pctile_inc4 hhaa_pctile_inc3_SSER hhaa_pctile_inc3_SSEE
+  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE pctile* hhaa_pctile* hh60_pctile*
   gen pubpension = hitsil + hitsup + hitsap // Added "+hitsap"
   *gen pripension = hicvip // No change
   gen allpension = pension // Removed "-hitsap"
@@ -395,7 +401,7 @@ end
 ***************************************************************************
 
 program define FR_def_tax_and_transfer
-  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE  pctile_inc1 pctile_inc2 pctile_inc3 pctile_inc4 pctile_inc3_SSER pctile_inc3_SSEE hhaa_pctile_inc1 hhaa_pctile_inc2 hhaa_pctile_inc3 hhaa_pctile_inc4 hhaa_pctile_inc3_SSER hhaa_pctile_inc3_SSEE marketincome
+  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE  pctile* hhaa_pctile* hh60_pctile* marketincome
  * Impute the taxes CSG and CRDS
   FR_tax_CSG_CRDS
   * Define the components of the income stages
