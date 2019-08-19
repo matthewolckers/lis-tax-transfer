@@ -323,8 +323,8 @@ program define inc_and_pctile
   * Define the income pctiles - Define various pctiles for various concepts of income
   foreach var in $incconcept{
   xtile pctile_`var' = `var' [w=hwgt*nhhmem], nquantiles(100) // already corrected for household size by ppp_equiv
-  xtile hhaa_pctile_`var' = `var' [w=hwgt*nhhmem] if hhactivage==1, nquantiles(100) // already corrected for household size by ppp_equiv
-	xtile hh60_pctile_`var' = `var' [w=hwgt*nhhmem] if hhundersixty==1, nquantiles(100)
+  * xtile pctile_`var' = `var' [w=hwgt*nhhmem] if hhactivage==1, nquantiles(100) // already corrected for household size by ppp_equiv
+	* xtile pctile_`var' = `var' [w=hwgt*nhhmem] if hhundersixty==1, nquantiles(100)
 }
 
 end
@@ -384,7 +384,7 @@ pensions, a subcategory of assistance benefits) out of transfers, and into
 pensions.  */
 
 program define fix_pensions_type3
-  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE pctile* hhaa_pctile* hh60_pctile*
+  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE pctile*
   gen pubpension = hitsil + hitsup + hitsap // Added "+hitsap"
   *gen pripension = hicvip // No change
   gen allpension = pension // Removed "-hitsap"
@@ -401,7 +401,7 @@ end
 ***************************************************************************
 
 program define FR_def_tax_and_transfer
-  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE  pctile* hhaa_pctile* hh60_pctile* marketincome
+  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE  pctile* marketincome
  * Impute the taxes CSG and CRDS
   FR_tax_CSG_CRDS
   * Define the components of the income stages
