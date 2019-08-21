@@ -514,9 +514,9 @@ foreach ccyy in $datasets {
    }
    quietly gen countryyear="`ccyy'"
    local sortvar "inc3" /*Put here how you want your data to be sorted. Be careful, variables have to be sorted in the same way as percentiles are*/
-   sort `sortvar'
-   quietly drop if pctile_`sortvar'[_n-1]==pctile_`sortvar'
+   sort pctile_`sortvar'
 	 quietly drop if pctile_`sortvar'==.
+   quietly drop if pctile_`sortvar'[_n-1]==pctile_`sortvar'
 
 	keep countryyear pctile_`sortvar' `sortvar'_*_`sortvar' hxit_*_`sortvar' hxits_*_`sortvar' hsscer_*_`sortvar' hil_*_`sortvar' transfer_*_`sortvar' pubpension_*_`sortvar'
 	cl, nodisplay noobs noheader
