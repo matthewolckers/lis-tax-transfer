@@ -4,8 +4,6 @@
 
 global datasets "at04 at07 at13 au03 au08 au10 ca04 ca07 ca10 ca13 ch00 ch02 ch04 ch07 ch10 ch13 cz02 cz04 cz07 cz10 cz13 de00 de04 de07 de10 de13 de15 dk00 dk04 dk07 dk10 dk13 ee10 ee13 es07 es10 es13 fi00 fi04 fi07 fi10 fi13 fr00 fr05 fr10 gr07 gr10 gr13 ie04 ie07 ie10 il10  is04 is07 is10 it04 it08 it10 it14 jp08 kr06 kr08 kr10 kr12 lu04 lu07 lu10 lu13 nl99 nl04 nl07 nl10 nl13 no00 no04 no07 no10 no13 pl04 pl07 pl10 pl13 pl16 pl99 se00 se05 sk04 sk07 sk10 sk13 uk99 uk04 uk07 uk10 uk13 us00 us04 us07 us10 us13 us16"  /*il12 it00 si12*/
 
-global net_datasets "" /*it00*/ // Removed es00 and it98 in this version since they contain dupicates and missing values respectively in pil.
-
 global pvars "pid hid dname pil pxit pxiti pxits age emp relation"
 
 global hvars "hid dname nhhmem dhi nhhmem17 nhhmem65 hwgt"
@@ -19,6 +17,8 @@ global hvarsinc "inc1 inc2 inc3 inc3_SSER inc3_SSEE inc4 tax transfer allpension
 global incconcept "inc1 inc2 inc3 inc3_SSER inc3_SSEE inc4" /*Concept of income: for the loops*/
 
 global fixpension_datasets3 "ie04 ie07 ie10 uk99 uk04 uk07 uk10 uk13"
+
+global centvar "inc3" /* The variable used to define the percentiles */
 
 *************************************************************
 * Program: Generate SSC variables from person level dataset
@@ -158,21 +158,6 @@ program define IT_gen_pvars
   gen_employee_ssc
   gen_employer_ssc
   convert_ssc_to_household_level
-end
-
-program define NET_gen_pvars
-  * Impute taxes for net datasets
-  nearmrg dname using "$mydata/molcke/net_20161101.dta", nearvar(pil) lower keep(match) nogenerate
-  * Convert variables to household level
-  bysort hid: egen hxiti=total(pinctax)
-  bysort hid: egen hsscee=total(psscee)
-  bysort hid: egen hsscer=total(psscer)
-    *create household activ age dummy*
-  activage_household
-  * Keep only household level SSC and household id
-  keep hid hsscee hsscer hxiti hhactivage hhundersixty
-  drop if hid==.
-  duplicates drop hid, force
 end
 
 ***************************************************************************
@@ -321,11 +306,9 @@ program define inc_and_pctile
   replace `var' = 0 if `var' < 0
   }
   * Define the income pctiles - Define various pctiles for various concepts of income
-  foreach var in $incconcept{
-  xtile pctile_`var' = `var' [w=hwgt*nhhmem], nquantiles(100) // already corrected for household size by ppp_equiv
-  * xtile pctile_`var' = `var' [w=hwgt*nhhmem] if hhactivage==1, nquantiles(100) // already corrected for household size by ppp_equiv
-	* xtile pctile_`var' = `var' [w=hwgt*nhhmem] if hhundersixty==1, nquantiles(100)
-}
+  xtile pctile = $centvar [w=hwgt*nhhmem], nquantiles(100) // already corrected for household size by ppp_equiv
+  // xtile pctile= $centvar [w=hwgt*nhhmem] if hhactivage==1, nquantiles(100) // already corrected for household size by ppp_equiv
+	// xtile pctile = $centvar [w=hwgt*nhhmem] if hhundersixty==1, nquantiles(100)
 
 end
 
@@ -384,7 +367,7 @@ pensions, a subcategory of assistance benefits) out of transfers, and into
 pensions.  */
 
 program define fix_pensions_type3
-  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE pctile*
+  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE pctile
   gen pubpension = hitsil + hitsup + hitsap // Added "+hitsap"
   *gen pripension = hicvip // No change
   gen allpension = pension // Removed "-hitsap"
@@ -401,7 +384,7 @@ end
 ***************************************************************************
 
 program define FR_def_tax_and_transfer
-  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE  pctile* marketincome
+  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE  pctile marketincome
  * Impute the taxes CSG and CRDS
   FR_tax_CSG_CRDS
   * Define the components of the income stages
@@ -473,9 +456,6 @@ foreach ccyy in $datasets {
     quietly merge m:1 hid using "$`ccyy'h", keep(match) keepusing(hxiti) nogenerate
     quietly IT_gen_pvars
   }
-  else if strpos("$net_datasets","`ccyy'") > 0 {
-    quietly NET_gen_pvars
-  }
   else {
     quietly gen_pvars
   }
@@ -494,33 +474,27 @@ foreach ccyy in $datasets {
   foreach certain_ccyy in $fixpensions_datasets3 {
     quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
   }
-  foreach var in $hvarsinc $hvarsflow $hvarsnew {
-    quietly sum `var' [w=hwgt*nhhmem]
-    local `var'_mean = r(mean)
-	quietly sum `var' [w=hwgt*nhhmem] if hhactivage==1
-    local hhaa_`var'_mean = r(mean)
-	foreach var2 in $incconcept{
 
-		quietly egen `var'_mean_`var2'=wtmean(`var'), by(pctile_`var2') weight(hwgt*nhhmem)
-		quietly egen `var'_min_`var2'=min(`var'), by(pctile_`var2')
-		quietly egen `var'_max_`var2'=max(`var'), by(pctile_`var2')
-		quietly egen `var'_p5_`var2'=pctile(`var'), by(pctile_`var2') p(5)
-		quietly egen `var'_p25_`var2'=pctile(`var'), by(pctile_`var2') p(25)
-		quietly egen `var'_p50_`var2'=pctile(`var'), by(pctile_`var2') p(50)
-		quietly egen `var'_p75_`var2'=pctile(`var'), by(pctile_`var2') p(75)
-		quietly egen `var'_p95_`var2'=pctile(`var'), by(pctile_`var2') p(95)
+	/* change local and egen command to extract a different measure within the percentile */
+	local measure "mean"
+	foreach var in $hvarsinc $hvarsflow $hvarsnew {
+		quietly egen `var'_mean = wtmean(`var'), by(pctile) weight(hwgt*nhhmem)
+		// quietly egen `var'_min  = min(`var'), by(pctile)
+		// quietly egen `var'_max  = max(`var'), by(pctile)
+		// quietly egen `var'_p5   = pctile(`var'), by(pctile) p(5)
+		// quietly egen `var'_p25  = pctile(`var'), by(pctile) p(25)
+		// quietly egen `var'_p50  = pctile(`var'), by(pctile) p(50)
+		// quietly egen `var'_p75  = pctile(`var'), by(pctile) p(75)
+		// quietly egen `var'_p95  = pctile(`var'), by(pctile) p(95)
+	}
+	quietly gen countryyear="`ccyy'"
 
-	 }
-   }
-   quietly gen countryyear="`ccyy'"
-   local sortvar "inc3" /*Put here how you want your data to be sorted. Be careful, variables have to be sorted in the same way as percentiles are*/
-   sort pctile_`sortvar'
-	 quietly drop if pctile_`sortvar'==.
-   quietly drop if pctile_`sortvar'[_n-1]==pctile_`sortvar'
-	/* change the measure local to extract a different measure within the percentile */
-	local measure "mean" 
+  sort pctile
+	quietly drop if pctile==.
+  quietly duplicates drop pctile , force
+
 	/* Only extract 10 variables at a time. If you use more than 10, the output prints onto the next line and is difficult to work with */
-	keep countryyear pctile_`sortvar' inc3_`measure'_`sortvar' tax_`measure'_`sortvar' hxit_`measure'_`sortvar' hxits_`measure'_`sortvar' hsscer_`measure'_`sortvar' hil_`measure'_`sortvar' transfer_`measure'_`sortvar' pubpension_`measure'_`sortvar'
+	keep countryyear pctile inc3_`measure' tax_`measure' hxit_`measure' hxits_`measure' hsscer_`measure' hil_`measure' transfer_`measure' pubpension_`measure'
 	cl, nodisplay noobs noheader
 }
 ds, varwidth(32)
