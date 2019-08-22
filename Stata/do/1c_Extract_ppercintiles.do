@@ -57,7 +57,7 @@ program define convert_ssc_to_household_level
   *create household activ age dummy*
   activage_household
   * Keep only household level SSC and household id and activage dummy
-  keep hid hsscee hsscer hhactivage
+  keep hid hsscee hsscer hhactivage hhundersixty
   drop if hid==.
   duplicates drop hid, force
 end
