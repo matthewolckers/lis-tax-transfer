@@ -517,8 +517,10 @@ foreach ccyy in $datasets {
    sort pctile_`sortvar'
 	 quietly drop if pctile_`sortvar'==.
    quietly drop if pctile_`sortvar'[_n-1]==pctile_`sortvar'
-
-	keep countryyear pctile_`sortvar' `sortvar'_*_`sortvar' hxit_*_`sortvar' hxits_*_`sortvar' hsscer_*_`sortvar' hil_*_`sortvar' transfer_*_`sortvar' pubpension_*_`sortvar'
+	/* change the measure local to extract a different measure within the percentile */
+	local measure "mean" 
+	/* Only extract 10 variables at a time. If you use more than 10, the output prints onto the next line and is difficult to work with */
+	keep countryyear pctile_`sortvar' inc3_`measure'_`sortvar' tax_`measure'_`sortvar' hxit_`measure'_`sortvar' hxits_`measure'_`sortvar' hsscer_`measure'_`sortvar' hil_`measure'_`sortvar' transfer_`measure'_`sortvar' pubpension_`measure'_`sortvar'
 	cl, nodisplay noobs noheader
 }
 ds, varwidth(32)
