@@ -475,9 +475,11 @@ foreach ccyy in $datasets {
     quietly fix_pensions_type3 if "`ccyy'" == "`certain_ccyy'"
   }
 
+	quietly gen taxrate=.
+	quietly replace taxrate = tax/inc3 if tax!=. & inc3!=.
 	/* change local and egen command to extract a different measure within the percentile */
 	local measure "mean"
-	foreach var in $hvarsinc $hvarsflow $hvarsnew {
+	foreach var in $hvarsinc $hvarsflow $hvarsnew taxrate{
 		quietly egen `var'_mean = wtmean(`var'), by(pctile) weight(hwgt*nhhmem)
 		// quietly egen `var'_min  = min(`var'), by(pctile)
 		// quietly egen `var'_max  = max(`var'), by(pctile)
@@ -494,7 +496,7 @@ foreach ccyy in $datasets {
   quietly duplicates drop pctile , force
 
 	/* Only extract 10 variables at a time. If you use more than 10, the output prints onto the next line and is difficult to work with */
-	keep countryyear pctile inc3_`measure' tax_`measure' hxit_`measure' hxits_`measure' hsscer_`measure' hil_`measure' transfer_`measure' pubpension_`measure'
+	keep countryyear pctile inc3_`measure' tax_`measure' taxrate_`measure' hxit_`measure' hxits_`measure' hsscer_`measure' hil_`measure' transfer_`measure' pubpension_`measure'
 	cl, nodisplay noobs noheader
 }
 ds, varwidth(32)
