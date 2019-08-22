@@ -478,19 +478,20 @@ foreach ccyy in $datasets {
 	quietly gen taxrate=.
 	quietly replace taxrate = tax/inc3 if tax!=. & inc3!=.
 
-  gen inc3weight = inc3*hwgt*nhhmem
-  egen inc3rank = rank(inc3weight) 
-  sum inc3rank
+  quietly gen inc3weight = inc3*hwgt*nhhmem
+  quietly egen inc3rank = rank(inc3weight)
+  quietly sum inc3rank
   local rank_max = r(max)
-  gen normrank = (inc3rank/`rank_max')-0.5
+  quietly gen normrank = (inc3rank/`rank_max')-0.5
 
-  sum inc3 [w=hwgt*nhhmem]
+  quietly sum inc3 [w=hwgt*nhhmem]
   local inc3_mean = r(mean)
 
-  sum tax [w=hwgt*nhhmem]
-  local tax_mean
-  gen taxrate_minusATR = taxrate - (`tax_mean'/`inc3_mean')
+  quietly sum tax [w=hwgt*nhhmem]
+  local tax_mean = r(mean)
+  quietly gen taxrate_minusATR = taxrate - (`tax_mean'/`inc3_mean')
 
+  sum taxrate_minusATR normrank
   reg taxrate_minusATR normrank [w=hwgt*nhhmem] , noconstant
 
 }
