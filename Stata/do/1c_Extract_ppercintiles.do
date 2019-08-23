@@ -477,6 +477,8 @@ foreach ccyy in $datasets {
 
 	quietly gen taxrate=.
 	quietly replace taxrate = tax/inc3 if tax!=. & inc3!=.
+	quietly replace taxrate = . if taxrate<0
+	quietly replace taxrate = . if taxrate>0.9
 	/* change local and egen command to extract a different measure within the percentile */
 	local measure "mean"
 	foreach var in $hvarsinc $hvarsflow $hvarsnew taxrate{
