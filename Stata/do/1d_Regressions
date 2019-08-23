@@ -18,8 +18,6 @@ global incconcept "inc1 inc2 inc3 inc3_SSER inc3_SSEE inc4" /*Concept of income:
 
 global fixpension_datasets3 "ie04 ie07 ie10 uk99 uk04 uk07 uk10 uk13"
 
-global centvar "inc3" /* The variable used to define the percentiles */
-
 *************************************************************
 * Program: Generate SSC variables from person level dataset
 *************************************************************
@@ -282,7 +280,7 @@ program define ppp_equiv
     replace hsscer=0 if hsscer<0 // Employer
     replace hsscee=0 if hsscee<0 // Employee
     * Step 3
-    // completed within the inc_and_pctile program
+    // completed within the inc_stages program
 end
 
 
@@ -290,7 +288,7 @@ end
 * Helper Program: Define the different stages of income and pctiles
 *******************************************************************
 
-program define inc_and_pctile
+program define inc_stages
 
   gen inc1 = marketincome
   gen inc2 = marketincome + allpension
@@ -305,10 +303,6 @@ program define inc_and_pctile
   foreach var in $hvarsflow $hvarsnew {
   replace `var' = 0 if `var' < 0
   }
-  * Define the income pctiles - Define various pctiles for various concepts of income
-  xtile pctile = $centvar [w=hwgt*nhhmem], nquantiles(100) // already corrected for household size by ppp_equiv
-  // xtile pctile= $centvar [w=hwgt*nhhmem] if hhactivage==1, nquantiles(100) // already corrected for household size by ppp_equiv
-	// xtile pctile = $centvar [w=hwgt*nhhmem] if hhundersixty==1, nquantiles(100)
 
 end
 
@@ -352,7 +346,7 @@ program define def_tax_and_transfer
   * are net of employer contributions but gross of employee SSC and income tax.
   replace marketincome = hil + (hic-hicvip) + tax if dname=="it04" | dname=="it08" | dname=="it10" |dname=="it14"
 
-  inc_and_pctile
+  inc_stages
 
 end
 
@@ -367,7 +361,7 @@ pensions, a subcategory of assistance benefits) out of transfers, and into
 pensions.  */
 
 program define fix_pensions_type3
-  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE pctile
+  drop pubpension allpension transfer inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE
   gen pubpension = hitsil + hitsup + hitsap // Added "+hitsap"
   *gen pripension = hicvip // No change
   gen allpension = pension // Removed "-hitsap"
@@ -375,7 +369,7 @@ program define fix_pensions_type3
   *gen tax = hxit + hsscer // No change
   *gen marketincome = hil + (hic-hicvip) + hsscer // No change
 
-  inc_and_pctile
+  inc_stages
 
 end
 
@@ -384,7 +378,7 @@ end
 ***************************************************************************
 
 program define FR_def_tax_and_transfer
-  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE  pctile marketincome
+  drop tax inc1 inc2 inc3 inc4 inc3_SSER inc3_SSEE marketincome
  * Impute the taxes CSG and CRDS
   FR_tax_CSG_CRDS
   * Define the components of the income stages
@@ -392,7 +386,7 @@ program define FR_def_tax_and_transfer
   * For France, incomes are reported net of ssc, but gross of income tax
   gen marketincome = hil + (hic-hicvip) + hsscer + hic_csg_crds + hxits + pension_csg_crds
 
-  inc_and_pctile
+  inc_stages
 
 end
 
@@ -480,22 +474,23 @@ foreach ccyy in $datasets {
 	quietly replace taxrate = . if taxrate<0
 	quietly replace taxrate = . if taxrate>0.9
 
-  quietly gen inc3weight = inc3*hwgt*nhhmem
-  quietly egen inc3rank = rank(inc3weight)
-  quietly sum inc3rank
-  local rank_max = r(max)
-  quietly gen normrank = (inc3rank/`rank_max')-0.5
+  quietly xtile pctile = inc3 [w=hwgt*nhhmem], nquantiles(1000)
+  quietly gen normrank = (pctile/1000)-0.5
 
   quietly sum inc3 [w=hwgt*nhhmem]
   local inc3_mean = r(mean)
-
   quietly sum tax [w=hwgt*nhhmem]
   local tax_mean = r(mean)
-  quietly gen taxrate_minusATR = taxrate - (`tax_mean'/`inc3_mean')
+	local ATR = `tax_mean'/`inc3_mean'
 
-  sum taxrate_minusATR normrank
-  reg taxrate_minusATR normrank [w=hwgt*nhhmem] , noconstant
+  quietly reg taxrate normrank [w=hwgt*nhhmem]
+	local rsquared = e(r2)
+	local meansquare = e(rmse)
+	local intercept = _b[_cons]
+	local slope = _b[normrank]
 
+	if "`ccyy'" == "at04" di "countryyear,slope,intercept,ATR,R2,RMSE"
+	di "`ccyy',`slope',`intercept',`ATR',`rsquared',`meansquare'"
 }
 program drop _all
 clear all
