@@ -4,6 +4,6 @@
 Stata/output/figures/*
 ## Jekyll files
 docs/Gemfile
-docs/Gemfile.lock
+#docs/Gemfile.lock
 docs/_site/*
 docs\_site\*
