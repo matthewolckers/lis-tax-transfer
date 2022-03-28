@@ -31,8 +31,8 @@ aux_links:
   "Access the code":
     - "//github.com/matthewolckers/lis-tax-transfer"
 
-# Color scheme currently only supports "dark" or nil (default)
-color_scheme: nil
+# Color scheme defined in _sass color_schemes
+color_scheme: red
 
 # Google Analytics Tracking (optional)
 # e.g, UA-1234567-89
